@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import serializers
 
 from ghorkhoje.settings import OTP_LENGTH
@@ -60,4 +61,37 @@ class ChangePasswordSerializer(serializers.Serializer):
         user = self.context["request"].user
         user.set_password(self.validated_data["new_password"])
         user.save()
+        return user
+
+
+class EmailOrPhoneSerializer(serializers.Serializer):
+    email_or_phone = serializers.CharField(required=True, max_length=255)
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    email_or_phone = serializers.CharField(required=True, max_length=255)
+    otp = serializers.CharField(required=True, max_length=OTP_LENGTH)
+    new_password = serializers.CharField(required=True, max_length=255)
+    confirm_password = serializers.CharField(required=True, max_length=255)
+
+    def validate(self, data):
+        if data.get("new_password") != data.get("confirm_password"):
+            raise serializers.ValidationError("Passwords do not match.")
+        return data
+
+    def save(self, **kwargs):
+        email_or_phone = self.validated_data["email_or_phone"]
+        otp = self.validated_data["otp"]
+        new_password = self.validated_data["new_password"]
+        user = User.objects.filter(
+            Q(email=email_or_phone) | Q(phone=email_or_phone)
+        ).first()
+
+        if user is None or user.otp != otp:
+            raise serializers.ValidationError("Invalid credentials.")
+
+        user.set_password(new_password)
+        user.otp = None
+        user.save()
+
         return user

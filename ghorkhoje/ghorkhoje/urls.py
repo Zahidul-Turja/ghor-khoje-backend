@@ -11,5 +11,5 @@ api_v1_urls = [path("auth/", include(auth_urlpatterns), name="auth_urls")]
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_v1_urls), name="api_v1"),
-    path("quotes/", get_random_quote, name="get_random_quotes"),
+    path("health/", get_random_quote, name="get_random_quotes"),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)

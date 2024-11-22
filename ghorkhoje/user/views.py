@@ -1,17 +1,21 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from utils.responses import common_response
 from user.services import (
     user_registration_service,
     otp_verification_service,
     user_login_service,
+    forget_password_service,
 )
 from user.serializers import (
     UserRegistrationSerializer,
     RegisterUserOTPVerificationSerializer,
     UserLoginSerializer,
     ChangePasswordSerializer,
+    EmailOrPhoneSerializer,
+    ResetPasswordSerializer,
 )
 
 
@@ -49,7 +53,7 @@ class RegisterUserOTPVerificationView(APIView):
             return common_response(400, str(e))
 
 
-class LoginUserView(APIView):
+class LoginUserAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -75,3 +79,49 @@ class ChangePasswordAPIView(APIView):
         serializer.save()
 
         return common_response(200, "Password changed successfully.")
+
+
+class ForgetPasswordAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            serializer = EmailOrPhoneSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            payload = serializer.validated_data
+            forget_password_service(payload)
+
+            return common_response(200, "OTP sent successfully.")
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+class ResetPasswordAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            serializer = ResetPasswordSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return common_response(200, "Password reset successfully.")
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+class LogoutUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh_token")
+            if not refresh_token:
+                return common_response(400, "Refresh token is required.")
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return common_response(200, "User Logged Out Successfully")
+        except Exception as e:
+            return common_response(400, str(e))

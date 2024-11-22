@@ -58,3 +58,19 @@ def user_login_service(payload):
         "access_token": str(token.access_token),
         "refresh_token": str(token),
     }
+
+
+def forget_password_service(payload):
+    email_or_phone = payload.get("email_or_phone")
+    user = User.objects.filter(
+        Q(email=email_or_phone) | Q(phone=email_or_phone)
+    ).first()
+
+    if user is None:
+        custom_exception("User does not exist.")
+
+    otp = generate_otp()
+    user.otp = otp
+    user.save()
+
+    return True
