@@ -1,6 +1,11 @@
 from django.urls import path
 
-from user.views import RegisterUserView, RegisterUserOTPVerificationView, LoginUserView
+from user.views import (
+    RegisterUserView,
+    RegisterUserOTPVerificationView,
+    LoginUserView,
+    ChangePasswordAPIView,
+)
 
 app_name = "user"
 
@@ -12,4 +17,5 @@ auth_urlpatterns = [
         name="register_user_otp",
     ),
     path("login/", LoginUserView.as_view(), name="login_user"),
+    path("change-password/", ChangePasswordAPIView.as_view(), name="change_password"),
 ]

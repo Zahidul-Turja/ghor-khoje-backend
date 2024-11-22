@@ -12,6 +12,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -22,6 +25,7 @@ INSTALLED_APPS = [
     "user",
     "corsheaders",
     "rest_framework",
+    "rest_framework_simplejwt",
 ]
 
 MIDDLEWARE = [
@@ -85,9 +89,29 @@ AUTH_USER_MODEL = "user.User"
 #     "django.contrib.auth.backends.ModelBackend",
 # }
 
+REST_USE_JWT = True
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.IsAdminUser",
+    ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
+    "ALGORITHM": "HS256",
+    "SIGING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_TOKEN_ACCESS_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+}
+
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Dhaka"
 
 USE_I18N = True
 

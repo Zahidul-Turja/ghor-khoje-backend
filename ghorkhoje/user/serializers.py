@@ -35,3 +35,29 @@ class RegisterUserOTPVerificationSerializer(serializers.Serializer):
 class UserLoginSerializer(serializers.Serializer):
     email_or_phone = serializers.CharField(required=True, max_length=255)
     password = serializers.CharField(required=True, max_length=255)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True, max_length=255)
+    new_password = serializers.CharField(required=True, max_length=255)
+    confirm_password = serializers.CharField(required=True, max_length=255)
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not user.check_password(data.get("old_password")):
+            raise serializers.ValidationError("Invalid credentials.")
+        if data.get("new_password") != data.get("confirm_password"):
+            raise serializers.ValidationError(
+                {"confirm_password": "Passwords do not match."}
+            )
+        if data.get("new_password") == data.get("old_password"):
+            raise serializers.ValidationError(
+                "New password cannot be same as old password."
+            )
+        return data
+
+    def save(self, **kwargs):
+        user = self.context["request"].user
+        user.set_password(self.validated_data["new_password"])
+        user.save()
+        return user

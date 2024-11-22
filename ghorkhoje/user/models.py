@@ -53,7 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_deleted = models.BooleanField(
         default=False, help_text="Soft delete: whether this user is archived or not."
     )
-    user_type = models.IntegerField(UserTypes.CHOICES, default=1)
+    user_type = models.IntegerField(UserTypes.CHOICES, default=2)
     otp = models.CharField(max_length=6, null=True, blank=True)
 
     is_active = models.BooleanField(default=True)

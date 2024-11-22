@@ -2,10 +2,16 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from utils.responses import common_response
-from user.services import user_registration_service, otp_verification_service
+from user.services import (
+    user_registration_service,
+    otp_verification_service,
+    user_login_service,
+)
 from user.serializers import (
     UserRegistrationSerializer,
     RegisterUserOTPVerificationSerializer,
+    UserLoginSerializer,
+    ChangePasswordSerializer,
 )
 
 
@@ -47,4 +53,25 @@ class LoginUserView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        pass
+        try:
+            serializer = UserLoginSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            payload = serializer.validated_data
+            response = user_login_service(payload)
+
+            return common_response(200, "User Logged In Successfully", response)
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+class ChangePasswordAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return common_response(200, "Password changed successfully.")
