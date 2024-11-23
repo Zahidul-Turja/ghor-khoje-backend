@@ -22,6 +22,7 @@ class PlaceSerializer(serializers.ModelSerializer):
     images = serializers.ListField(
         child=serializers.ImageField(), write_only=True, required=False
     )
+    total_per_month = serializers.SerializerMethodField()
 
     class Meta:
         model = Place
@@ -42,13 +43,18 @@ class PlaceSerializer(serializers.ModelSerializer):
             "apartment_number",
             "floor_number",
             "rent_per_month",
+            "total_per_month",
             "extra_bills",
+            "num_prepayment_months",
             "latitude",
             "longitude",
             "available_from",
             "is_active",
             "images",
         ]
+
+    def get_total_per_month(self, instance):
+        return instance.rent_per_month + instance.extra_bills
 
     def create(self, validated_data):
         images_data = validated_data.pop("images", [])

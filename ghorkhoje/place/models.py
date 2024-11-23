@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 
 from user.models import User
 from utils.functions import validate_image_size, unique_image_path
+from place.configs import AppointmentStatus
 
 
 class TimestampedModel(models.Model):
@@ -20,6 +21,10 @@ class Category(models.Model):
     def __str__(self):
         return f"ID:{self.id}, Name: {self.name}"
 
+    class Meta:
+        db_table = "categories"
+        verbose_name_plural = "Categories"
+
 
 class Facility(models.Model):
     name = models.CharField(max_length=255)
@@ -27,6 +32,10 @@ class Facility(models.Model):
 
     def __str__(self):
         return f"ID:{self.id}, Name: {self.name}"
+
+    class Meta:
+        db_table = "facilities"
+        verbose_name_plural = "Facilities"
 
 
 class Place(TimestampedModel):
@@ -57,6 +66,7 @@ class Place(TimestampedModel):
     extra_bills = models.DecimalField(
         max_digits=6, decimal_places=2, null=True, blank=True
     )
+    num_prepayment_months = models.IntegerField(null=True, blank=True)
     latitude = models.DecimalField(
         max_digits=9,
         decimal_places=6,
@@ -64,9 +74,15 @@ class Place(TimestampedModel):
     )
     longitude = models.DecimalField(max_digits=9, decimal_places=6, db_index=True)
 
-    # status = models.CharField(choices=[()])
+    appointment_status = models.CharField(
+        choices=AppointmentStatus.CHOICES,
+        max_length=50,
+        default=AppointmentStatus.APPOINTMENT_CREATED,
+    )
     available_from = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(verbose_name="Archived", default=False)
+    is_approved = models.BooleanField(verbose_name="Approved", default=False)
 
     def clean(self):
         if not (20.5 <= self.latitude <= 26.6):
@@ -85,6 +101,7 @@ class Place(TimestampedModel):
         indexes = [
             models.Index(fields=["latitude", "longitude"]),
         ]
+        db_table = "places"
 
     def __str__(self):
         return f"ID:{self.id}, Title: {self.title}, City: {self.city}"

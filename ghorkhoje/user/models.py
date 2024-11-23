@@ -5,7 +5,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 
-from user.configs import UserTypes
+from user.configs import UserTypes, Gender
 
 
 class CustomUserManager(BaseUserManager):
@@ -45,6 +45,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=14, null=True, blank=True, unique=True)
     profile_image = models.ImageField(
         upload_to="users/profile_images/", null=True, blank=True
+    )
+    gender = models.CharField(
+        choices=Gender.CHOICES,
+        default=Gender.MALE,
+        max_length=10,
+        null=True,
+        blank=True,
     )
     date_of_birth = models.DateField(null=True, blank=True)
     nid = models.CharField(max_length=20, null=True, blank=True)
