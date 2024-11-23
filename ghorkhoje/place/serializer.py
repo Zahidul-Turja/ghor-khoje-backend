@@ -9,6 +9,12 @@ class FacilitySerializer(serializers.ModelSerializer):
         fields = ("id", "name", "bill")
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ("id", "name")
+
+
 class PlaceSerializer(serializers.ModelSerializer):
     facilities = serializers.PrimaryKeyRelatedField(
         queryset=Facility.objects.all(), many=True, required=False
