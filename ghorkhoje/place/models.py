@@ -3,7 +3,7 @@ from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
 
 from user.models import User
-from utils.functions import validate_image_size
+from utils.functions import validate_image_size, unique_image_path
 
 
 class TimestampedModel(models.Model):
@@ -64,6 +64,10 @@ class Place(TimestampedModel):
     )
     longitude = models.DecimalField(max_digits=9, decimal_places=6, db_index=True)
 
+    # status = models.CharField(choices=[()])
+    available_from = models.DateField(null=True, blank=True)
+    is_active = models.BooleanField(default=False)
+
     def clean(self):
         if not (20.5 <= self.latitude <= 26.6):
             raise ValidationError(
@@ -77,14 +81,19 @@ class Place(TimestampedModel):
         if self.rent_per_month < 0:
             raise ValidationError("Rent per month cannot be negative.")
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["latitude", "longitude"]),
+        ]
+
     def __str__(self):
-        return f"ID:{self.id}, Title: {self.title}"
+        return f"ID:{self.id}, Title: {self.title}, City: {self.city}"
 
 
 class Image(TimestampedModel):
     place = models.ForeignKey(Place, related_name="images", on_delete=models.CASCADE)
     image = models.ImageField(
-        upload_to="places/",
+        upload_to=unique_image_path,
         validators=[
             FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"]),
             validate_image_size,

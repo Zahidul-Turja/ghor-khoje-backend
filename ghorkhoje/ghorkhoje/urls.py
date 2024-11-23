@@ -5,8 +5,12 @@ from django.conf.urls.static import static
 from ghorkhoje.views import get_random_quote
 from ghorkhoje.settings import MEDIA_URL, MEDIA_ROOT
 from user.urls import auth_urlpatterns
+from place.urls import place_urlpatterns
 
-api_v1_urls = [path("auth/", include(auth_urlpatterns), name="auth_urls")]
+api_v1_urls = [
+    path("auth/", include(auth_urlpatterns), name="auth_urls"),
+    path("place/", include(place_urlpatterns), name="place_urls"),
+]
 
 urlpatterns = [
     path("admin/", admin.site.urls),
