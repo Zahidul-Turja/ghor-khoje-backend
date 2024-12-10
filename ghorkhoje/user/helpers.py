@@ -22,11 +22,9 @@ def user_registration_service(payload):
 
 
 def otp_verification_service(payload):
-    email_or_phone = payload.get("email_or_phone")
+    email = payload.get("email")
     otp = payload.get("otp")
-    user = User.objects.filter(
-        Q(email=email_or_phone) | Q(phone=email_or_phone)
-    ).first()
+    user = User.objects.filter(email=email).first()
 
     if user is None or user.otp != otp:
         return False
@@ -39,11 +37,11 @@ def otp_verification_service(payload):
 
 
 def user_login_service(payload):
-    email_or_phone = payload.get("email_or_phone")
+    email = payload.get("email")
     password = payload.get("password")
 
     try:
-        user = User.objects.get(Q(email=email_or_phone) | Q(phone=email_or_phone))
+        user = User.objects.get(email=email)
     except User.DoesNotExist:
         custom_exception("User does not exist.")
 
@@ -61,10 +59,8 @@ def user_login_service(payload):
 
 
 def forget_password_service(payload):
-    email_or_phone = payload.get("email_or_phone")
-    user = User.objects.filter(
-        Q(email=email_or_phone) | Q(phone=email_or_phone)
-    ).first()
+    email = payload.get("email")
+    user = User.objects.filter(email=email).first()
 
     if user is None:
         custom_exception("User does not exist.")

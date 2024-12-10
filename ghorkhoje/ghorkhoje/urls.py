@@ -4,12 +4,13 @@ from django.conf.urls.static import static
 
 from ghorkhoje.views import get_random_quote
 from ghorkhoje.settings import MEDIA_URL, MEDIA_ROOT
-from user.urls import auth_urlpatterns
+from user.urls import auth_urlpatterns, user_urlpatterns
 from place.urls import place_urlpatterns
 from booking.urls import booking_urlpatterns
 
 api_v1_urls = [
     path("auth/", include(auth_urlpatterns), name="auth_urls"),
+    path("user/", include(user_urlpatterns), name="user_urls"),
     path("place/", include(place_urlpatterns), name="place_urls"),
     path("booking/", include(booking_urlpatterns), name="booking_urls"),
 ]

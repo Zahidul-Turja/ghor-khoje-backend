@@ -8,6 +8,7 @@ from user.views import (
     ChangePasswordAPIView,
     ForgetPasswordAPIView,
     ResetPasswordAPIView,
+    UserProfileAPIView,
 )
 
 app_name = "user"
@@ -25,3 +26,5 @@ auth_urlpatterns = [
     path("forget-password/", ForgetPasswordAPIView.as_view(), name="forget_password"),
     path("reset-password/", ResetPasswordAPIView.as_view(), name="reset_password"),
 ]
+
+user_urlpatterns = [path("profile/", UserProfileAPIView.as_view(), name="user_profile")]

@@ -29,12 +29,12 @@ class UserRegistrationSerializer(serializers.Serializer):
 
 
 class RegisterUserOTPVerificationSerializer(serializers.Serializer):
-    email_or_phone = serializers.CharField(required=True, max_length=255)
+    email = serializers.CharField(required=True, max_length=255)
     otp = serializers.CharField(required=True, max_length=OTP_LENGTH)
 
 
 class UserLoginSerializer(serializers.Serializer):
-    email_or_phone = serializers.CharField(required=True, max_length=255)
+    email = serializers.CharField(required=True, max_length=255)
     password = serializers.CharField(required=True, max_length=255)
 
 
@@ -64,12 +64,12 @@ class ChangePasswordSerializer(serializers.Serializer):
         return user
 
 
-class EmailOrPhoneSerializer(serializers.Serializer):
-    email_or_phone = serializers.CharField(required=True, max_length=255)
+class EmailSerializer(serializers.Serializer):
+    email = serializers.CharField(required=True, max_length=255)
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    email_or_phone = serializers.CharField(required=True, max_length=255)
+    email = serializers.CharField(required=True, max_length=255)
     otp = serializers.CharField(required=True, max_length=OTP_LENGTH)
     new_password = serializers.CharField(required=True, max_length=255)
     confirm_password = serializers.CharField(required=True, max_length=255)
@@ -80,12 +80,10 @@ class ResetPasswordSerializer(serializers.Serializer):
         return data
 
     def save(self, **kwargs):
-        email_or_phone = self.validated_data["email_or_phone"]
+        email = self.validated_data["email"]
         otp = self.validated_data["otp"]
         new_password = self.validated_data["new_password"]
-        user = User.objects.filter(
-            Q(email=email_or_phone) | Q(phone=email_or_phone)
-        ).first()
+        user = User.objects.filter(email=email).first()
 
         if user is None or user.otp != otp:
             raise serializers.ValidationError("Invalid credentials.")
@@ -95,3 +93,17 @@ class ResetPasswordSerializer(serializers.Serializer):
         user.save()
 
         return user
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "phone",
+            "full_name",
+            "nid",
+            "date_of_birth",
+            "profile_image",
+        ]

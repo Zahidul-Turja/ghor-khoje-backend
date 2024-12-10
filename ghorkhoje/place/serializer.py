@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.core.exceptions import ValidationError
 
 from place.models import Place, Facility, Category, Image
 
@@ -15,13 +16,20 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ("id", "name")
 
 
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = ["image", "description"]
+
+
 class PlaceSerializer(serializers.ModelSerializer):
     facilities = serializers.PrimaryKeyRelatedField(
         queryset=Facility.objects.all(), many=True, required=False
     )
-    images = serializers.ListField(
-        child=serializers.ImageField(), write_only=True, required=False
-    )
+    # images = serializers.ListField(
+    #     child=serializers.DictField(), write_only=True, required=False
+    # )
+    images = ImageSerializer(many=True, required=False)
     total_per_month = serializers.SerializerMethodField()
 
     class Meta:
@@ -57,12 +65,15 @@ class PlaceSerializer(serializers.ModelSerializer):
         return instance.rent_per_month + instance.extra_bills
 
     def create(self, validated_data):
-        images_data = validated_data.pop("images", [])
+        print("Validated Data: ", validated_data)
+        images_data = validated_data.pop("images")
         facilities_data = validated_data.pop("facilities", [])
-
         place = Place.objects.create(**validated_data)
+
         for image_data in images_data:
-            Image.objects.create(place=place, image=image_data)
+            image_serializer = ImageSerializer(data=image_data)
+            image_serializer.is_valid(raise_exception=True)
+            image_serializer.save(place=place)
         for facility_data in facilities_data:
             place.facilities.add(facility_data)
 

@@ -3,7 +3,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from utils.responses import common_response
-from ghorkhoje.user.helpers import (
+from user.helpers import (
     user_registration_service,
     otp_verification_service,
     user_login_service,
@@ -14,8 +14,9 @@ from user.serializers import (
     RegisterUserOTPVerificationSerializer,
     UserLoginSerializer,
     ChangePasswordSerializer,
-    EmailOrPhoneSerializer,
+    EmailSerializer,
     ResetPasswordSerializer,
+    UserProfileSerializer,
 )
 
 
@@ -86,7 +87,7 @@ class ForgetPasswordAPIView(APIView):
 
     def post(self, request):
         try:
-            serializer = EmailOrPhoneSerializer(data=request.data)
+            serializer = EmailSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             payload = serializer.validated_data
             forget_password_service(payload)
@@ -123,5 +124,30 @@ class LogoutUserAPIView(APIView):
             token.blacklist()
 
             return common_response(200, "User Logged Out Successfully")
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+class UserProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            serializer = UserProfileSerializer(request.user)
+            user = serializer.data
+            return common_response(200, "User Profile fetched successfully.", user)
+        except Exception as e:
+            return common_response(400, str(e))
+
+    def patch(self, request):
+        try:
+            serializer = UserProfileSerializer(
+                request.user, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return common_response(
+                200, "User Profile updated successfully.", serializer.data
+            )
         except Exception as e:
             return common_response(400, str(e))

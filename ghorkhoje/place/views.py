@@ -52,6 +52,24 @@ class PlaceAPIView(APIView):
 
     def post(self, request):
         try:
+            print("Request Data: ", request.data)
+            # Convert QueryDict to a mutable dictionary
+            data = request.data.dict()
+            images = []
+
+            # Extract and restructure images data
+            for key, value in request.data.items():
+                if key.startswith("images["):
+                    # Parse the image index and field name
+                    index = int(key.split("[")[1].split("]")[0])
+                    field = key.split("][")[1][:-1]
+
+                    # Ensure the images list is long enough
+                    while len(images) <= index:
+                        images.append({})
+                    images[index][field] = value
+
+            data["images"] = images
             serializer = PlaceSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()

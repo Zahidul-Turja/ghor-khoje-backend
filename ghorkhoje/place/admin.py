@@ -33,3 +33,4 @@ class FacilityAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Place, PlaceAdmin)
+admin.site.register(Image)
