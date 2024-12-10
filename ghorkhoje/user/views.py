@@ -3,7 +3,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from utils.responses import common_response
-from user.services import (
+from ghorkhoje.user.helpers import (
     user_registration_service,
     otp_verification_service,
     user_login_service,
