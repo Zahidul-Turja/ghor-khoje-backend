@@ -26,9 +26,6 @@ class PlaceSerializer(serializers.ModelSerializer):
     facilities = serializers.PrimaryKeyRelatedField(
         queryset=Facility.objects.all(), many=True, required=False
     )
-    # images = serializers.ListField(
-    #     child=serializers.DictField(), write_only=True, required=False
-    # )
     images = ImageSerializer(many=True, required=False)
     total_per_month = serializers.SerializerMethodField()
 
@@ -70,10 +67,10 @@ class PlaceSerializer(serializers.ModelSerializer):
         facilities_data = validated_data.pop("facilities", [])
         place = Place.objects.create(**validated_data)
 
+        # Add images if provided
         for image_data in images_data:
-            image_serializer = ImageSerializer(data=image_data)
-            image_serializer.is_valid(raise_exception=True)
-            image_serializer.save(place=place)
+            Image.objects.create(place=place, **image_data)
+
         for facility_data in facilities_data:
             place.facilities.add(facility_data)
 
