@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "ghorkhoje/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "ghorkhoje/wsgi.py"
+    }
+  ]
+}
