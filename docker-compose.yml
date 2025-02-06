@@ -15,6 +15,11 @@ services:
         condition: service_healthy
     networks:
       - ghorkhoje-network
+    command: >
+      bash -c "pip install -r requirements.txt &&
+              python ghorkhoje/manage.py makemigrations
+              python ghorkhoje/manage.py migrate &&
+              python ghorkhoje/manage.py runserver 0.0.0.0:8000"
 
   db:
     image: postgres:13
