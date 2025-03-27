@@ -7,7 +7,7 @@ from place.models import Place, Category, Facility, Image
 
 class ImageAdmin(admin.TabularInline):
     model = Image
-    extra = 1
+    extra = 0
 
 
 class PlaceAdmin(admin.ModelAdmin):

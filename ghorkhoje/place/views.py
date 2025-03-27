@@ -63,22 +63,6 @@ class PlaceAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            data = (
-                request.data.dict() if hasattr(request.data, "dict") else request.data
-            )
-            images = []
-
-            # Extract and restructure images data
-            for key, value in request.data.items():
-                if key.startswith("images["):
-                    index = int(key.split("[")[1].split("]")[0])
-                    field = key.split("][")[1][:-1]
-
-                    while len(images) <= index:
-                        images.append({})
-                    images[index][field] = value
-
-            data["images"] = images
             serializer = PlaceSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
