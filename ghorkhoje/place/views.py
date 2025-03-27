@@ -66,9 +66,6 @@ class PlaceAPIView(APIView):
             serializer = PlaceSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-
-            if request.accepted_renderer.format == "api":  # Browsable API request
-                return Response(serializer.data)
             return common_response(200, "Place created successfully.", serializer.data)
         except Exception as e:
             if request.accepted_renderer.format == "api":
