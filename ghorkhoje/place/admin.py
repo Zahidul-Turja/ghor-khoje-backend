@@ -29,7 +29,6 @@ class CategoryAdmin(admin.ModelAdmin):
 class FacilityAdmin(admin.ModelAdmin):
     list_display = ("id", "name")
     search_fields = ("name",)
-    ordering = ("name",)
 
 
 admin.site.register(Place, PlaceAdmin)

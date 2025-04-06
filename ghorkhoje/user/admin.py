@@ -1,10 +1,23 @@
 from django.contrib import admin
 
-from user.models import User
+from user.models import *
 
 # Register your models here.
 
 
-@admin.register(User)
+class ReviewInline(admin.TabularInline):
+    model = Review
+    fk_name = "reviewee"
+    extra = 0
+
+
 class UserAdmin(admin.ModelAdmin):
-    list_display = ("id", "email", "phone", "user_type")
+    inlines = [ReviewInline]
+    list_display = ("id", "full_name", "email", "phone", "user_type")
+    list_filter = ("user_type", "is_deleted")
+    search_fields = ("full_name", "email", "phone")
+    ordering = ("-created_at",)
+    list_per_page = 20
+
+
+admin.site.register(User, UserAdmin)

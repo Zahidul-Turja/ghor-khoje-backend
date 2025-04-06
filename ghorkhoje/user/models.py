@@ -4,6 +4,7 @@ from django.contrib.auth.models import (
     AbstractBaseUser,
     PermissionsMixin,
 )
+from django.db.models import Avg
 
 from user.configs import UserTypes, Gender
 
@@ -65,5 +66,38 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
     USERNAME_FIELD = "email"
 
+    def get_average_rating(self):
+        result = self.received_reviews.aggregate(avg_rating=Avg("rating"))
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_review_count(self):
+        return self.received_reviews.count()
+
     def __str__(self):
         return self.email if self.email else self.phone
+
+
+class Review(models.Model):
+    reviewer = models.ForeignKey(
+        User,
+        related_name="given_reviews",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    reviewee = models.ForeignKey(
+        User,
+        related_name="received_reviews",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    rating = models.IntegerField(null=True, blank=True)
+    review_text = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Review by {self.reviewer} to {self.reviewee} - Rating: {self.rating}"
