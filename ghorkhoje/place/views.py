@@ -1,10 +1,17 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.pagination import PageNumberPagination
 
 from place.models import Place, Facility, Category
 from place.serializer import PlaceSerializer, FacilitySerializer, CategorySerializer
 from utils.responses import common_response
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 class FacilityAPIView(APIView):
@@ -42,7 +49,8 @@ class CategoryAPIView(APIView):
 
 
 class PlaceAPIView(APIView):
-    serializer_class = PlaceSerializer  # Required for browsable API to work
+    serializer_class = PlaceSerializer
+    pagination_class = StandardResultsSetPagination
 
     def get_permissions(self):
         if self.request.method == "POST":
@@ -54,10 +62,23 @@ class PlaceAPIView(APIView):
     def get(self, request, *args, **kwargs):
         try:
             places = Place.objects.all()
-            serializer = PlaceSerializer(places, many=True)
-            if request.accepted_renderer.format == "api":  # Browsable API request
-                return Response(serializer.data)
-            return common_response(200, "Places fetched successfully.", serializer.data)
+
+            # Get paginator instance
+            paginator = self.pagination_class()
+            paginated_places = paginator.paginate_queryset(places, request)
+
+            # Serialize paginated data
+            serializer = PlaceSerializer(paginated_places, many=True)
+
+            # Return paginated response
+            paginated_response = paginator.get_paginated_response(serializer.data)
+
+            # If you need to use your common_response format
+            return common_response(
+                200,
+                "Places fetched successfully.",
+                paginated_response.data,
+            )
         except Exception as e:
             return common_response(400, str(e))
 

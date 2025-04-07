@@ -1,4 +1,5 @@
 class AppointmentStatus:
+    APPOINTMENT_NON = "APPOINTMENT_NON"
     APPOINTMENT_CREATED = "APPOINTMENT_CREATED"
     APPOINTMENT_ACCEPTED = "APPOINTMENT_ACCEPTED"
     APPOINTMENT_REJECTED = "APPOINTMENT_REJECTED"
@@ -6,6 +7,7 @@ class AppointmentStatus:
     APPOINTMENT_COMPLETED = "APPOINTMENT_COMPLETED"
 
     CHOICES = [
+        (APPOINTMENT_NON, "No Appointment"),
         (APPOINTMENT_CREATED, "Appointment Created"),
         (APPOINTMENT_ACCEPTED, "Appointment Accepted"),
         (APPOINTMENT_REJECTED, "Appointment Rejected"),

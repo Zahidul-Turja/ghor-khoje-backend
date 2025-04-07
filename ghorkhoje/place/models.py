@@ -73,11 +73,23 @@ class Place(TimestampedModel):
         db_index=True,
     )
     longitude = models.DecimalField(max_digits=9, decimal_places=6, db_index=True)
+    area_in_sqft = models.DecimalField(
+        max_digits=9, decimal_places=2, null=True, blank=True
+    )
+    num_of_bedrooms = models.IntegerField(default=1)
+    num_of_bathrooms = models.IntegerField(default=1)
+    num_of_balconies = models.IntegerField(default=0)
+    num_of_kitchens = models.IntegerField(default=0)
+    num_of_living_rooms = models.IntegerField(default=0)
+    num_of_dining_rooms = models.IntegerField(default=0)
+    num_of_parking_spaces = models.IntegerField(default=0)
+
+    capacity = models.IntegerField(default=1)
 
     appointment_status = models.CharField(
         choices=AppointmentStatus.CHOICES,
         max_length=50,
-        default=AppointmentStatus.APPOINTMENT_CREATED,
+        default=AppointmentStatus.APPOINTMENT_NON,
     )
     available_from = models.DateField(null=True, blank=True)
     is_available = models.BooleanField(default=True)
