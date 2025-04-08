@@ -51,17 +51,19 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     date_of_birth = models.DateField(null=True, blank=True)
     nid = models.CharField(max_length=20, null=True, blank=True)
+    user_type = models.IntegerField(UserTypes.CHOICES, default=2)
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    profession = models.CharField(max_length=255, null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
     is_deleted = models.BooleanField(
         default=False, help_text="Soft delete: whether this user is archived or not."
     )
-    user_type = models.IntegerField(UserTypes.CHOICES, default=2)
-    otp = models.CharField(max_length=6, null=True, blank=True)
-
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
 
     objects = CustomUserManager()
     USERNAME_FIELD = "email"

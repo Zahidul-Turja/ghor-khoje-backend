@@ -6,8 +6,8 @@ class UserTypes:
 
 
 class Gender:
-    MALE = 1
-    FEMALE = 2
-    OTHERS = 3
+    MALE = "MALE"
+    FEMALE = "FEMALE"
+    OTHERS = "OTHERS"
 
     CHOICES = [(MALE, "Male"), (FEMALE, "Female"), (OTHERS, "Others")]

@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
+from django.utils.text import slugify
 
 from user.models import User
 from utils.functions import validate_image_size, unique_image_path
@@ -40,6 +41,7 @@ class Facility(models.Model):
 
 class Place(TimestampedModel):
     title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=300, unique=True, blank=True, null=True)
     owner = models.ForeignKey(
         User, related_name="owned_places", on_delete=models.CASCADE
     )
@@ -109,6 +111,18 @@ class Place(TimestampedModel):
 
         if self.rent_per_month < 0:
             raise ValidationError("Rent per month cannot be negative.")
+
+    def save(self, *args, **kwargs):
+        if not self.slug:  # Auto-generate slug only if it's empty
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+            while Place.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+
+        super().save(*args, **kwargs)
 
     class Meta:
         indexes = [

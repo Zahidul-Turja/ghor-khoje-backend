@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.core.exceptions import ValidationError
 
 from place.models import Place, Facility, Category, Image
+from user.models import User
 
 
 class FacilitySerializer(serializers.ModelSerializer):
@@ -22,18 +23,40 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ["image", "description"]
 
 
+class OwnerSerializer(serializers.ModelSerializer):
+    rating = serializers.SerializerMethodField()
+    hosted_places = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "full_name",
+            "email",
+            "profession",
+            "hosted_places",
+            "rating",
+        ]
+
+    def get_rating(self, instance):
+        return instance.get_average_rating()
+
+    def get_hosted_places(self, instance):
+        return Place.objects.filter(owner=instance).count()
+
+
 class PlaceSerializer(serializers.ModelSerializer):
-    facilities = serializers.PrimaryKeyRelatedField(
-        queryset=Facility.objects.all(), many=True, required=False
-    )
+    facilities = FacilitySerializer(many=True, required=False)
     images = ImageSerializer(many=True, required=False)
     total_per_month = serializers.SerializerMethodField()
+    owner = OwnerSerializer()
 
     class Meta:
         model = Place
         fields = [
             "id",
             "title",
+            "slug",
             "owner",
             "description",
             "category",
