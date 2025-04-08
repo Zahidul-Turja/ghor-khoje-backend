@@ -92,3 +92,22 @@ class PlaceAPIView(APIView):
             if request.accepted_renderer.format == "api":
                 return Response({"error": str(e)}, status=400)
             return common_response(400, str(e))
+
+
+class PlaceDetailsAPIView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = PlaceSerializer
+
+    def get(self, request, slug):
+        try:
+            place = Place.objects.get(slug=slug)
+            serializer = PlaceSerializer(place)
+            if request.accepted_renderer.format == "api":
+                return Response(serializer.data)
+            return common_response(
+                200, "Place details fetched successfully.", serializer.data
+            )
+        except Place.DoesNotExist:
+            return common_response(404, "Place not found.")
+        except Exception as e:
+            return common_response(400, str(e))
