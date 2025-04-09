@@ -28,9 +28,11 @@ class RegisterUserView(APIView):
             serializer_data = UserRegistrationSerializer(data=request.data)
             serializer_data.is_valid(raise_exception=True)
             payload = serializer_data.validated_data
-            user_registration_service(payload)
+            user = user_registration_service(payload)
+            serializ_user = UserProfileSerializer(user)
+            user = serializ_user.data
 
-            return common_response(200, "User Registered Successfully", request.data)
+            return common_response(200, "User Registered Successfully", user)
         except Exception as e:
             return common_response(400, str(e))
 

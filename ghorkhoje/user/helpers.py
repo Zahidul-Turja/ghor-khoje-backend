@@ -17,9 +17,14 @@ def generate_otp():
 def user_registration_service(payload):
     otp = generate_otp()
     payload["otp"] = otp
+    payload.pop("confirm_password", None)
 
-    User.objects.create_user(**payload)
-    return True
+    user = User.objects.create_user(**payload)
+
+    # TODO: Send OTP to user via email or SMS
+    # For now, we just print the OTP
+    print(f"Generated OTP: {otp}")
+    return user
 
 
 def otp_verification_service(payload):
