@@ -10,6 +10,7 @@ class UserRegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField(required=False)
     phone = serializers.CharField(required=False)
     password = serializers.CharField()
+    confirm_password = serializers.CharField()
     full_name = serializers.CharField()
     nid = serializers.CharField(required=False)
     date_of_birth = serializers.DateField(required=False)
@@ -24,6 +25,12 @@ class UserRegistrationSerializer(serializers.Serializer):
             custom_exception("User with this phone number already exists.")
         if User.objects.filter(nid=data.get("nid")).exists() and data.get("nid"):
             custom_exception("User with this NID already exists.")
+        if data.get("password") != data.get("confirm_password"):
+            custom_exception("Passwords do not match.")
+        if data.get("password") == data.get("email"):
+            custom_exception("Password cannot be same as email.")
+        if data.get("password") == data.get("phone"):
+            custom_exception("Password cannot be same as phone number.")
 
         return data
 

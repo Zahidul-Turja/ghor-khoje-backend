@@ -30,10 +30,9 @@ class RegisterUserView(APIView):
             payload = serializer_data.validated_data
             user_registration_service(payload)
 
-            return common_response(200, "User Registered Successfully")
+            return common_response(200, "User Registered Successfully", request.data)
         except Exception as e:
             return common_response(400, str(e))
-        return common_response(200, "User Registered Successfully", request.data)
 
 
 class RegisterUserOTPVerificationView(APIView):

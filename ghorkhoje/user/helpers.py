@@ -5,6 +5,7 @@ import random
 
 from ghorkhoje.settings import OTP_LENGTH
 from user.models import User
+from user.serializers import UserProfileSerializer
 from utils.responses import custom_exception
 
 
@@ -51,8 +52,11 @@ def user_login_service(payload):
     token = RefreshToken.for_user(user)
     update_last_login(None, user)
 
+    serializer = UserProfileSerializer(user)
+    user = serializer.data
+
     return {
-        "user_id": user.id,
+        "user": user,
         "access_token": str(token.access_token),
         "refresh_token": str(token),
     }
