@@ -36,6 +36,7 @@ class OwnerSerializer(serializers.ModelSerializer):
             "profession",
             "hosted_places",
             "rating",
+            "profile_image",
         ]
 
     def get_rating(self, instance):
