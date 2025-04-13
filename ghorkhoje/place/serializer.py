@@ -1,8 +1,10 @@
+from django.utils import timezone
+
 from rest_framework import serializers
 from django.core.exceptions import ValidationError
 
 from place.models import Place, Facility, Category, Image
-from user.models import User
+from user.models import User, Review
 
 
 class FacilitySerializer(serializers.ModelSerializer):
@@ -23,8 +25,41 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ["image", "description"]
 
 
+class ReviewerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "full_name", "profile_image"]
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    reviewer = ReviewerSerializer()
+    review_date = serializers.SerializerMethodField()
+    reviewed_days_ago = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Review
+        fields = [
+            "id",
+            "reviewer",
+            "review_text",
+            "rating",
+            "review_date",
+            "reviewed_days_ago",
+        ]
+
+    def get_review_date(self, instance):
+        return instance.created_at.strftime("%Y-%m-%d") if instance.created_at else None
+
+    def get_reviewed_days_ago(self, instance):
+        if instance.created_at:
+            days_ago = (timezone.now() - instance.created_at).days
+            return f"{days_ago} days ago"
+        return None
+
+
 class OwnerSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
+    reviews = serializers.SerializerMethodField()
     hosted_places = serializers.SerializerMethodField()
 
     class Meta:
@@ -36,6 +71,7 @@ class OwnerSerializer(serializers.ModelSerializer):
             "profession",
             "hosted_places",
             "rating",
+            "reviews",
             "profile_image",
         ]
 
@@ -44,6 +80,10 @@ class OwnerSerializer(serializers.ModelSerializer):
 
     def get_hosted_places(self, instance):
         return Place.objects.filter(owner=instance).count()
+
+    def get_reviews(self, instance):
+        reviews = instance.received_reviews.all()
+        return ReviewSerializer(reviews, many=True).data
 
 
 class PlaceSerializer(serializers.ModelSerializer):
@@ -89,7 +129,8 @@ class PlaceSerializer(serializers.ModelSerializer):
             "num_of_parking_spaces",
             "area_in_sqft",
             "capacity",
-            "appointment_status", "created_at",
+            "appointment_status",
+            "created_at",
         ]
 
     def get_total_per_month(self, instance):
