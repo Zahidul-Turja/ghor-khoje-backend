@@ -75,9 +75,7 @@ class Place(TimestampedModel):
         db_index=True,
     )
     longitude = models.DecimalField(max_digits=9, decimal_places=6, db_index=True)
-    area_in_sqft = models.DecimalField(
-        max_digits=9, decimal_places=2, null=True, blank=True
-    )
+    area_in_sqft = models.IntegerField(null=True, blank=True)
     num_of_bedrooms = models.IntegerField(default=1)
     num_of_bathrooms = models.IntegerField(default=1)
     num_of_balconies = models.IntegerField(default=0)

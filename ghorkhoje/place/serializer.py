@@ -88,7 +88,8 @@ class PlaceSerializer(serializers.ModelSerializer):
             "num_of_dining_rooms",
             "num_of_parking_spaces",
             "area_in_sqft",
-            "created_at",
+            "capacity",
+            "appointment_status", "created_at",
         ]
 
     def get_total_per_month(self, instance):
