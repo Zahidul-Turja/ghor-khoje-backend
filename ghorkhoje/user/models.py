@@ -42,6 +42,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     profile_image = models.ImageField(
         upload_to="users/profile_images/", null=True, blank=True
     )
+    cover_image = models.ImageField(
+        upload_to="users/cover_images/", null=True, blank=True
+    )
+    bio = models.TextField(null=True, blank=True)
     gender = models.CharField(
         choices=Gender.CHOICES,
         default=Gender.MALE,
@@ -56,6 +60,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     otp = models.CharField(max_length=6, null=True, blank=True)
     profession = models.CharField(max_length=255, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    country = models.CharField(max_length=255, null=True, blank=True)
+    state = models.CharField(max_length=255, null=True, blank=True)
+    city = models.CharField(max_length=255, null=True, blank=True)
+
+    languages = models.CharField(max_length=255, null=True, blank=True)
+    preferred_language = models.CharField(max_length=255, null=True, blank=True)
+
+    # Social Media Links
+    linkedin = models.URLField(null=True, blank=True)
+    facebook = models.URLField(null=True, blank=True)
+    twitter = models.URLField(null=True, blank=True)
+    instagram = models.URLField(null=True, blank=True)
+    tiktok = models.URLField(null=True, blank=True)
+    youtube = models.URLField(null=True, blank=True)
+    telegram = models.URLField(null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

@@ -104,17 +104,49 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    address = serializers.SerializerMethodField()
+    social_links = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
             "id",
+            "full_name",
             "email",
             "phone",
-            "full_name",
-            "nid",
-            "date_of_birth",
             "profile_image",
+            "cover_image",
+            "bio",
+            "gender",
+            "date_of_birth",
+            "nid",
+            "user_type",
+            "profession",
+            "address",
+            "languages",
+            "preferred_language",
+            "social_links",
+            "created_at",
         ]
+
+    def get_address(self, obj):
+        return {
+            "address": obj.address,
+            "country": obj.country,
+            "state": obj.state,
+            "city": obj.city,
+        }
+
+    def get_social_links(self, obj):
+        return {
+            "facebook": obj.facebook,
+            "twitter": obj.twitter,
+            "instagram": obj.instagram,
+            "linkedin": obj.linkedin,
+            "youtube": obj.youtube,
+            "tiktok": obj.tiktok,
+            "telegram": obj.telegram,
+        }
 
 
 class LandlordApplicationSerializer(serializers.ModelSerializer):
