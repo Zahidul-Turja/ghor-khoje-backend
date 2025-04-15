@@ -146,6 +146,28 @@ class UserProfileAPIView(APIView):
             return common_response(400, str(e))
 
 
+class HasAppliedForLandlordAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            landlord_application = LandlordApplication.objects.filter(
+                user=request.user
+            ).first()
+            if landlord_application:
+                data = {
+                    "is_landlord": landlord_application.status == "APPROVED",
+                    "has_applied": landlord_application.status == "PENDING",
+                    "application_date": landlord_application.application_date,
+                    "status": landlord_application.status,
+                    "rejection_reason": landlord_application.rejection_reason,
+                }
+                return common_response(200, "Landlord Application exists.", data)
+            return common_response(200, "Landlord Application does not exist.")
+        except Exception as e:
+            return common_response(400, str(e))
+
+
 class LandlordApplicationAPIView(APIView):
     permission_classes = [IsAuthenticated]
 

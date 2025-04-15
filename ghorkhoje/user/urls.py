@@ -18,7 +18,14 @@ auth_urlpatterns = [
     path("reset-password/", ResetPasswordAPIView.as_view(), name="reset_password"),
 ]
 
-user_urlpatterns = [path("profile/", UserProfileAPIView.as_view(), name="user_profile")]
+user_urlpatterns = [
+    path("profile/", UserProfileAPIView.as_view(), name="user_profile"),
+    path(
+        "has-applied-for-landlord/",
+        HasAppliedForLandlordAPIView.as_view(),
+        name="has_applied_for_landlord",
+    ),
+]
 
 application_urlpatterns = [
     path(
