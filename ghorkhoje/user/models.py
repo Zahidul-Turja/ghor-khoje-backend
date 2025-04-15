@@ -51,7 +51,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     date_of_birth = models.DateField(null=True, blank=True)
     nid = models.CharField(max_length=20, null=True, blank=True)
-    user_type = models.IntegerField(UserTypes.CHOICES, default=2)
+    user_type = models.CharField(
+        max_length=20, choices=UserTypes.CHOICES, default=UserTypes.BACHELOR
+    )
     otp = models.CharField(max_length=6, null=True, blank=True)
     profession = models.CharField(max_length=255, null=True, blank=True)
 
@@ -104,3 +106,29 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.reviewer} to {self.reviewee} - Rating: {self.rating}"
+
+
+class LandlordApplication(models.Model):
+    STATUS = (
+        ("PENDING", "Pending"),
+        ("APPROVED", "Approved"),
+        ("REJECTED", "Rejected"),
+    )
+    user = models.ForeignKey(
+        User, related_name="landlord_applications", on_delete=models.CASCADE
+    )
+    application_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=10, choices=STATUS, default="PENDING", null=True, blank=True
+    )
+    rejection_reason = models.TextField(null=True, blank=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-application_date"]
+        verbose_name = "Landlord Application"
+        verbose_name_plural = "Landlord Applications"
+
+    def __str__(self):
+        return f"Application by {self.user} - Status: {self.status}"

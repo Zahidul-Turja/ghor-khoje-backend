@@ -1,6 +1,6 @@
 class UserTypes:
-    LANDLORD = 1
-    BACHELOR = 2
+    LANDLORD = "LANDLORD"
+    BACHELOR = "BACHELOR"
 
     CHOICES = [(LANDLORD, "Landlord"), (BACHELOR, "Bachelor")]
 

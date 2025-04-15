@@ -20,4 +20,13 @@ class UserAdmin(admin.ModelAdmin):
     list_per_page = 20
 
 
+class LandlordAdmin(admin.ModelAdmin):
+    list_display = ("user", "status", "application_date")
+    list_filter = ("status",)
+    search_fields = ("user__full_name", "user__email")
+    ordering = ("-application_date",)
+    list_per_page = 20
+
+
 admin.site.register(User, UserAdmin)
+admin.site.register(LandlordApplication, LandlordAdmin)
