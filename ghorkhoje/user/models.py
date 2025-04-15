@@ -130,5 +130,11 @@ class LandlordApplication(models.Model):
         verbose_name = "Landlord Application"
         verbose_name_plural = "Landlord Applications"
 
+    def save(self, *args, **kwargs):
+        if self.status == "APPROVED":
+            self.user.user_type = UserTypes.LANDLORD
+            self.user.save()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"Application by {self.user} - Status: {self.status}"

@@ -1,8 +1,9 @@
+from django.utils import timezone
 from django.db.models import Q
 from rest_framework import serializers
 
 from ghorkhoje.settings import OTP_LENGTH
-from user.models import User
+from user.models import *
 from utils.responses import custom_exception
 
 
@@ -114,3 +115,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "profile_image",
         ]
+
+
+class LandlordApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LandlordApplication
+        fields = ["user", "application_date", "status"]

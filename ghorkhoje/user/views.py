@@ -9,15 +9,7 @@ from user.helpers import (
     user_login_service,
     forget_password_service,
 )
-from user.serializers import (
-    UserRegistrationSerializer,
-    RegisterUserOTPVerificationSerializer,
-    UserLoginSerializer,
-    ChangePasswordSerializer,
-    EmailSerializer,
-    ResetPasswordSerializer,
-    UserProfileSerializer,
-)
+from user.serializers import *
 
 
 class RegisterUserView(APIView):
@@ -150,5 +142,22 @@ class UserProfileAPIView(APIView):
             return common_response(
                 200, "User Profile updated successfully.", serializer.data
             )
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+class LandlordApplicationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            data = {}
+            data["user"] = request.user.id
+            data["status"] = "PENDING"
+            data["application_date"] = timezone.now()
+            serializer = LandlordApplicationSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return common_response(200, "Landlord Application submitted successfully.")
         except Exception as e:
             return common_response(400, str(e))

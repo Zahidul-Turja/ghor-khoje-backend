@@ -1,15 +1,6 @@
 from django.urls import path
 
-from user.views import (
-    RegisterUserView,
-    RegisterUserOTPVerificationView,
-    LoginUserAPIView,
-    LogoutUserAPIView,
-    ChangePasswordAPIView,
-    ForgetPasswordAPIView,
-    ResetPasswordAPIView,
-    UserProfileAPIView,
-)
+from user.views import *
 
 app_name = "user"
 
@@ -28,3 +19,11 @@ auth_urlpatterns = [
 ]
 
 user_urlpatterns = [path("profile/", UserProfileAPIView.as_view(), name="user_profile")]
+
+application_urlpatterns = [
+    path(
+        "landlord/",
+        LandlordApplicationAPIView.as_view(),
+        name="landlord_application",
+    ),
+]
