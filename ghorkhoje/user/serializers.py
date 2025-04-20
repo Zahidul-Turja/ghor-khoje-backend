@@ -153,3 +153,9 @@ class LandlordApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = LandlordApplication
         fields = ["user", "application_date", "status"]
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ["id", "title", "message", "type", "status", "created_at", "is_read"]

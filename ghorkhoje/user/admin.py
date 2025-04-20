@@ -72,5 +72,13 @@ class LandlordAdmin(admin.ModelAdmin):
     applicant_info.short_description = "Applicant Info"
 
 
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "message", "is_read", "created_at")
+    search_fields = ("user__full_name", "user__email")
+    ordering = ("-created_at",)
+    list_per_page = 40
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(LandlordApplication, LandlordAdmin)
+admin.site.register(Notification, NotificationAdmin)

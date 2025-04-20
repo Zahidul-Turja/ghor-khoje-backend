@@ -73,7 +73,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     facebook = models.URLField(null=True, blank=True)
     twitter = models.URLField(null=True, blank=True)
     instagram = models.URLField(null=True, blank=True)
-    tiktok = models.URLField(null=True, blank=True)
     youtube = models.URLField(null=True, blank=True)
     telegram = models.URLField(null=True, blank=True)
 
@@ -154,7 +153,54 @@ class LandlordApplication(models.Model):
         if self.status == "APPROVED":
             self.user.user_type = UserTypes.LANDLORD
             self.user.save()
+
+            Notification.objects.create(
+                user=self.user,
+                message="Your landlord application has been approved.",
+            )
+        elif self.status == "REJECTED":
+            Notification.objects.create(
+                user=self.user,
+                message=f"Your landlord application has been rejected. Reason: {self.rejection_reason}",
+            )
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Application by {self.user} - Status: {self.status}"
+
+
+class Notification(models.Model):
+    STATUS = (
+        ("PENDING", "Pending"),
+        ("READ", "Read"),
+        ("ARCHIVED", "Archived"),
+        ("DELETED", "Deleted"),
+        ("UNREAD", "Unread"),
+    )
+    TYPE = (
+        ("SYSTEM", "System"),
+        ("BOOKING", "Booking"),
+        ("REVIEW", "Review"),
+        ("SUCCESS", "Success"),
+        ("ERROR", "Error"),
+        ("WARNING", "Warning"),
+        ("INFO", "Info"),
+        ("OTHER", "Other"),
+    )
+    user = models.ForeignKey(
+        User, related_name="notifications", on_delete=models.CASCADE
+    )
+    title = models.CharField(max_length=255, null=True, blank=True)
+    type = models.CharField(max_length=50, default="SYSTEM", choices=TYPE)
+    status = models.CharField(max_length=50, default="PENDING", choices=STATUS)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification for {self.user} - {self.message[:20]}"
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"

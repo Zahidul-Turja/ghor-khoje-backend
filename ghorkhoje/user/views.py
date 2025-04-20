@@ -9,6 +9,7 @@ from user.helpers import (
     user_login_service,
     forget_password_service,
 )
+from user.models import *
 from user.serializers import *
 
 
@@ -181,5 +182,21 @@ class LandlordApplicationAPIView(APIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return common_response(200, "Landlord Application submitted successfully.")
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+class UserNotificationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            notifications = Notification.objects.filter(user=request.user).order_by(
+                "-created_at"
+            )
+            serializer = NotificationSerializer(notifications, many=True)
+            return common_response(
+                200, "Notifications fetched successfully.", serializer.data
+            )
         except Exception as e:
             return common_response(400, str(e))

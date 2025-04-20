@@ -20,6 +20,7 @@ auth_urlpatterns = [
 
 user_urlpatterns = [
     path("profile/", UserProfileAPIView.as_view(), name="user_profile"),
+    path("notifications/", UserNotificationAPIView.as_view(), name="user_notification"),
     path(
         "has-applied-for-landlord/",
         HasAppliedForLandlordAPIView.as_view(),
