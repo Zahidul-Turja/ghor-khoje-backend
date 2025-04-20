@@ -10,13 +10,13 @@ from user.models import User, Review
 class FacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Facility
-        fields = ("id", "name", "bill")
+        fields = ("id", "name", "bill", "icon")
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ("id", "name")
+        fields = ("id", "name", "icon", "description")
 
 
 class ImageSerializer(serializers.ModelSerializer):

@@ -18,6 +18,8 @@ class TimestampedModel(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=150)
+    icon = models.ImageField(upload_to="category_icons/", null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"ID:{self.id}, Name: {self.name}"
@@ -29,6 +31,7 @@ class Category(models.Model):
 
 class Facility(models.Model):
     name = models.CharField(max_length=255)
+    icon = models.ImageField(upload_to="facility_icons/", null=True, blank=True)
     bill = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
     def __str__(self):
