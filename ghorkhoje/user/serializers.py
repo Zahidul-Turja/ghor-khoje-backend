@@ -144,7 +144,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "instagram": obj.instagram,
             "linkedin": obj.linkedin,
             "youtube": obj.youtube,
-            "tiktok": obj.tiktok,
             "telegram": obj.telegram,
         }
 
