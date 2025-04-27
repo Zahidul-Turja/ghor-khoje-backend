@@ -159,6 +159,8 @@ class LandlordApplication(models.Model):
                 message="Your landlord application has been approved.",
             )
         elif self.status == "REJECTED":
+            self.user.user_type = UserTypes.BACHELOR
+            self.user.save()
             Notification.objects.create(
                 user=self.user,
                 message=f"Your landlord application has been rejected. Reason: {self.rejection_reason}",
