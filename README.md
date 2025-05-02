@@ -178,3 +178,57 @@ To ensure trust and authenticity, preventing fake accounts or fraudulent listing
 4. **Final Status:** Verified or Rejected (with reasons).
 
 ---
+
+## Amenities
+
+1. Natural Gas
+2. Water supply
+3. Generator
+4. Wifi
+5. Dish TV
+6. Air conditioning (AC)
+7. Water heater
+8. Closets
+9. Kitchen cabinets
+10. Refrigerator
+11. Microwave
+12. Oven
+13. Water filter
+14. Rice cooker
+15. Washing machine
+16. Meal service
+17. Private balcony
+18. Garage
+19. Parking space
+20. 24/7 security guard
+21. CCTV cameras
+22. Intercom
+23. Fire extinguisher
+24. Smoke detector
+25. Elevator / lift
+26. Rooftop access
+27. Gym
+28. Lawn / garden
+29. Playground
+30. Gas Cylinder
+
+## Place Categories
+
+1. Shared Room
+2. Private Room
+3. Sublet
+4. Flat / Apartment
+5. Studio Apartment
+6. Duplex (Two-level unit)
+7. Full House
+8. Penthouse
+9. Hostel
+10. Bachelor (Male)
+11. Bachelor (Female)
+12. Family
+13. Couple-friendly
+14. Girl's Hostel
+15. Boy's Hostel
+16. Office Space
+17. Tin-shed
+18. Semi-pucca
