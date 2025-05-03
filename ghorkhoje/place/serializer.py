@@ -89,20 +89,10 @@ class OwnerSerializer(serializers.ModelSerializer):
 
 class PlaceDetailsSerializer(serializers.ModelSerializer):
     owner = OwnerSerializer(read_only=True)
-
-    class Meta:
-        model = Place
-        fields = "__all__"
-
-
-class PlaceSerializer(serializers.ModelSerializer):
-    facilities = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Facility.objects.all(), required=False
-    )
-    images = ImageSerializer(many=True, required=False)
-    # images = serializers.ListField(child=ImageSerializer(), required=False)
     total_per_month = serializers.SerializerMethodField()
-    owner = OwnerSerializer(read_only=True)
+    facilities = FacilitySerializer(many=True, required=False)
+    category = CategorySerializer(read_only=True)
+    images = ImageSerializer(many=True, required=False)
 
     class Meta:
         model = Place
@@ -150,26 +140,66 @@ class PlaceSerializer(serializers.ModelSerializer):
             return float(instance.rent_per_month)
         return instance.rent_per_month + instance.extra_bills
 
+
+class PlaceSerializer(serializers.ModelSerializer):
+    facilities = serializers.CharField(
+        required=False, write_only=True, allow_blank=True
+    )
+    images = ImageSerializer(many=True, required=False, write_only=True)
+    # images = serializers.ListField(child=ImageSerializer(), required=False)
+
+    class Meta:
+        model = Place
+        fields = [
+            "id",
+            "title",
+            "description",
+            "category",
+            "facilities",
+            "city",
+            "area_name",
+            "area_code",
+            "block_name",
+            "street_name",
+            "house_name",
+            "house_number",
+            "apartment_number",
+            "floor_number",
+            "rent_per_month",
+            "extra_bills",
+            "num_prepayment_months",
+            "latitude",
+            "longitude",
+            "available_from",
+            "is_active",
+            "images",
+            "num_of_bedrooms",
+            "num_of_bathrooms",
+            "num_of_balconies",
+            "num_of_kitchens",
+            "num_of_living_rooms",
+            "num_of_dining_rooms",
+            "num_of_parking_spaces",
+            "area_in_sqft",
+            "capacity",
+            "appointment_status",
+            "created_at",
+        ]
+
     def create(self, validated_data):
         print("Validated data:", validated_data)
         images_data = validated_data.pop("images", [])
-        facilities_data = validated_data.pop("facilities", [])
+        # facilities_data = validated_data.pop("facilities", [])
+        facilities_data = list(validated_data.pop("facilities", []).split(","))
         owner = self.context["request"].user
+        place = Place.objects.create(owner=owner, **validated_data)
 
-        print("Facilities data:", facilities_data)
         while transaction.atomic():
-            place = Place.objects.create(owner=owner, **validated_data)
-
             for facility in facilities_data:
-                try:
-                    facility_instance = Facility.objects.get(id=facility)
-                except Facility.DoesNotExist:
-                    raise ValidationError(
-                        f"Facility with id {facility} does not exist."
-                    )
+                facility_instance = Facility.objects.get(id=facility)
                 place.facilities.add(facility_instance)
 
-            # for image_data in images_data:
-            #     Image.objects.create(place=place, **image_data)
+            for image_data in images_data:
+                Image.objects.create(place=place, **image_data)
 
             return place

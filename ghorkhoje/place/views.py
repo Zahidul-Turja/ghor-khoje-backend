@@ -62,7 +62,7 @@ class PlaceListAPIView(APIView):
             places = Place.objects.all()
             paginator = self.pagination_class()
             paginated_places = paginator.paginate_queryset(places, request)
-            serializer = PlaceSerializer(paginated_places, many=True)
+            serializer = self.serializer_class(paginated_places, many=True)
             return paginator.get_paginated_response(serializer.data)
         except Exception as e:
             return common_response(400, str(e))
@@ -75,12 +75,35 @@ class PlaceAPIView(APIView):
         try:
             print(request.data, "-------------------------------------")
             data = request.data.copy()
+            # Normalize scalar fields (convert single-item lists to strings/numbers)
+            normalized_data = {
+                key: value[0] if isinstance(value, list) else value
+                for key, value in data.lists()
+                if not key.startswith("images[")
+            }
 
-            serializer = PlaceSerializer(data=data, context={"request": request})
+            # Process nested images list
+            images = []
+            index = 0
+            while f"images[{index}].image" in request.FILES:
+                image = request.FILES[f"images[{index}].image"]
+                description = request.data.get(f"images[{index}].description", "")
+                images.append({"image": image, "description": description})
+                index += 1
+
+            normalized_data["images"] = images
+
+            # Proceed with serializer
+            serializer = PlaceSerializer(
+                data=normalized_data, context={"request": request}
+            )
+
             if serializer.is_valid(raise_exception=True):
                 place = serializer.create(serializer.validated_data)
                 return common_response(
-                    201, "Place created successfully.", PlaceSerializer(place).data
+                    201,
+                    "Place created successfully.",
+                    PlaceDetailsSerializer(place).data,
                 )
             else:
                 return common_response(400, "Invalid data.", serializer.errors)
@@ -91,12 +114,12 @@ class PlaceAPIView(APIView):
 
 class PlaceDetailsAPIView(APIView):
     permission_classes = [AllowAny]
-    serializer_class = PlaceSerializer
+    serializer_class = PlaceDetailsSerializer
 
     def get(self, request, slug):
         try:
             place = Place.objects.get(slug=slug)
-            serializer = PlaceSerializer(place)
+            serializer = self.serializer_class(place)
             if request.accepted_renderer.format == "api":
                 return Response(serializer.data)
             return common_response(
