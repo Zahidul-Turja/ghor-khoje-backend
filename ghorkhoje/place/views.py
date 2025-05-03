@@ -1,10 +1,14 @@
+import traceback
+
+import json
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.pagination import PageNumberPagination
 
-from place.models import Place, Facility, Category
-from place.serializer import PlaceSerializer, FacilitySerializer, CategorySerializer
+from place.models import *
+from place.serializer import *
 from utils.responses import common_response
 
 
@@ -20,7 +24,7 @@ class FacilityAPIView(APIView):
 
     def get(self, request):
         try:
-            facilities = Facility.objects.all()
+            facilities = Facility.objects.all().order_by("name")
             serializer = FacilitySerializer(facilities, many=True)
             if request.accepted_renderer.format == "api":
                 return Response(serializer.data)
@@ -37,7 +41,7 @@ class CategoryAPIView(APIView):
 
     def get(self, request):
         try:
-            categories = Category.objects.all()
+            categories = Category.objects.all().order_by("name")
             serializer = CategorySerializer(categories, many=True)
             if request.accepted_renderer.format == "api":
                 return Response(serializer.data)
@@ -48,49 +52,40 @@ class CategoryAPIView(APIView):
             return common_response(400, str(e))
 
 
-class PlaceAPIView(APIView):
-    serializer_class = PlaceSerializer
+class PlaceListAPIView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = PlaceDetailsSerializer
     pagination_class = StandardResultsSetPagination
 
-    def get_permissions(self):
-        if self.request.method == "POST":
-            self.permission_classes = [IsAuthenticated]
-        else:
-            self.permission_classes = [AllowAny]
-        return super().get_permissions()
-
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         try:
             places = Place.objects.all()
-
-            # Get paginator instance
             paginator = self.pagination_class()
             paginated_places = paginator.paginate_queryset(places, request)
-
-            # Serialize paginated data
             serializer = PlaceSerializer(paginated_places, many=True)
-
-            # Return paginated response
-            paginated_response = paginator.get_paginated_response(serializer.data)
-
-            # If you need to use your common_response format
-            return common_response(
-                200,
-                "Places fetched successfully.",
-                paginated_response.data,
-            )
+            return paginator.get_paginated_response(serializer.data)
         except Exception as e:
             return common_response(400, str(e))
 
-    def post(self, request, *args, **kwargs):
+
+class PlaceAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
         try:
-            serializer = PlaceSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return common_response(200, "Place created successfully.", serializer.data)
+            print(request.data, "-------------------------------------")
+            data = request.data.copy()
+
+            serializer = PlaceSerializer(data=data, context={"request": request})
+            if serializer.is_valid(raise_exception=True):
+                place = serializer.create(serializer.validated_data)
+                return common_response(
+                    201, "Place created successfully.", PlaceSerializer(place).data
+                )
+            else:
+                return common_response(400, "Invalid data.", serializer.errors)
         except Exception as e:
-            if request.accepted_renderer.format == "api":
-                return Response({"error": str(e)}, status=400)
+            traceback.print_exc()
             return common_response(400, str(e))
 
 

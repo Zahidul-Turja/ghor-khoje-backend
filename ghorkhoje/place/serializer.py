@@ -2,6 +2,7 @@ from django.utils import timezone
 
 from rest_framework import serializers
 from django.core.exceptions import ValidationError
+from django.db import transaction
 
 from place.models import Place, Facility, Category, Image
 from user.models import User, Review
@@ -17,12 +18,6 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ("id", "name", "icon", "description")
-
-
-class ImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Image
-        fields = ["image", "description"]
 
 
 class ReviewerSerializer(serializers.ModelSerializer):
@@ -57,6 +52,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         return None
 
 
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = ["image", "description"]
+
+
 class OwnerSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
@@ -86,11 +87,22 @@ class OwnerSerializer(serializers.ModelSerializer):
         return ReviewSerializer(reviews, many=True).data
 
 
+class PlaceDetailsSerializer(serializers.ModelSerializer):
+    owner = OwnerSerializer(read_only=True)
+
+    class Meta:
+        model = Place
+        fields = "__all__"
+
+
 class PlaceSerializer(serializers.ModelSerializer):
-    facilities = FacilitySerializer(many=True, required=False)
+    facilities = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Facility.objects.all(), required=False
+    )
     images = ImageSerializer(many=True, required=False)
+    # images = serializers.ListField(child=ImageSerializer(), required=False)
     total_per_month = serializers.SerializerMethodField()
-    owner = OwnerSerializer()
+    owner = OwnerSerializer(read_only=True)
 
     class Meta:
         model = Place
@@ -134,19 +146,30 @@ class PlaceSerializer(serializers.ModelSerializer):
         ]
 
     def get_total_per_month(self, instance):
+        if instance.extra_bills is None:
+            return float(instance.rent_per_month)
         return instance.rent_per_month + instance.extra_bills
 
     def create(self, validated_data):
-        print("Validated Data: ", validated_data)
-        images_data = validated_data.pop("images")
+        print("Validated data:", validated_data)
+        images_data = validated_data.pop("images", [])
         facilities_data = validated_data.pop("facilities", [])
-        place = Place.objects.create(**validated_data)
+        owner = self.context["request"].user
 
-        # Add images if provided
-        for image_data in images_data:
-            Image.objects.create(place=place, **image_data)
+        print("Facilities data:", facilities_data)
+        while transaction.atomic():
+            place = Place.objects.create(owner=owner, **validated_data)
 
-        for facility_data in facilities_data:
-            place.facilities.add(facility_data)
+            for facility in facilities_data:
+                try:
+                    facility_instance = Facility.objects.get(id=facility)
+                except Facility.DoesNotExist:
+                    raise ValidationError(
+                        f"Facility with id {facility} does not exist."
+                    )
+                place.facilities.add(facility_instance)
 
-        return place
+            # for image_data in images_data:
+            #     Image.objects.create(place=place, **image_data)
+
+            return place

@@ -12,7 +12,7 @@ api_v1_urls = [
     path("auth/", include(auth_urlpatterns), name="auth_urls"),
     path("user/", include(user_urlpatterns), name="user_urls"),
     path("application/", include(application_urlpatterns), name="application_urls"),
-    path("place/", include(place_urlpatterns), name="place_urls"),
+    path("places/", include(place_urlpatterns), name="place_urls"),
     path("booking/", include(booking_urlpatterns), name="booking_urls"),
 ]
 

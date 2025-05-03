@@ -16,6 +16,7 @@ class PlaceAdmin(admin.ModelAdmin):
     list_filter = ("city", "category", "created_at")
     search_fields = ("title", "owner__username", "city")
     ordering = ("-created_at",)
+    readonly_fields = ("created_at", "updated_at", "slug")
 
 
 @admin.register(Category)
