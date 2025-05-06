@@ -26,6 +26,11 @@ user_urlpatterns = [
         HasAppliedForLandlordAPIView.as_view(),
         name="has_applied_for_landlord",
     ),
+    path(
+        "listed-properties/",
+        ListedPropertiesAPIView.as_view(),
+        name="listed_properties",
+    ),
 ]
 
 application_urlpatterns = [

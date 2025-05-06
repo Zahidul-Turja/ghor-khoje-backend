@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.pagination import PageNumberPagination
 
 from utils.responses import common_response
 from user.helpers import (
@@ -11,6 +12,16 @@ from user.helpers import (
 )
 from user.models import *
 from user.serializers import *
+
+from place.models import Place
+from place.serializer import PlaceDetailsSerializer
+
+
+class Pagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 100
+    page_query_param = "page"
 
 
 class RegisterUserView(APIView):
@@ -198,5 +209,20 @@ class UserNotificationAPIView(APIView):
             return common_response(
                 200, "Notifications fetched successfully.", serializer.data
             )
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+class ListedPropertiesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            properties = user.owned_places.order_by("-created_at")
+            pagination = Pagination()
+            properties = pagination.paginate_queryset(properties, request)
+            serializer = PlaceDetailsSerializer(properties, many=True)
+            return pagination.get_paginated_response(serializer.data)
         except Exception as e:
             return common_response(400, str(e))
