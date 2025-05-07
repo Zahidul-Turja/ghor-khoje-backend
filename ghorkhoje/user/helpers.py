@@ -7,11 +7,12 @@ from ghorkhoje.settings import OTP_LENGTH
 from user.models import User
 from user.serializers import UserProfileSerializer
 from utils.responses import custom_exception
+from utils.services import send_custom_email
 
 
 def generate_otp():
-    return "1234"
-    # return "".join(random.choices("0123456789", k=OTP_LENGTH))
+    # return "1234"
+    return "".join(random.choices("0123456789", k=OTP_LENGTH))
 
 
 def user_registration_service(payload):
@@ -21,8 +22,11 @@ def user_registration_service(payload):
 
     user = User.objects.create_user(**payload)
 
-    # TODO: Send OTP to user via email or SMS
-    # For now, we just print the OTP
+    send_custom_email(
+        "Ghor Khojee OTP Verification",
+        f"Your One Time Password (OTP) is: {otp}",
+        [user.email],
+    )
     print(f"Generated OTP: {otp}")
     return user
 

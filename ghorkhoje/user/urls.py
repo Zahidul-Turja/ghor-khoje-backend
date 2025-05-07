@@ -39,4 +39,5 @@ application_urlpatterns = [
         LandlordApplicationAPIView.as_view(),
         name="landlord_application",
     ),
+    # path("send-email-test/", SendEmailTestView.as_view(), name="send_email_test"),
 ]

@@ -16,12 +16,29 @@ from user.serializers import *
 from place.models import Place
 from place.serializer import PlaceDetailsSerializer
 
+from utils.services import send_custom_email
+
 
 class Pagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = "page_size"
     max_page_size = 100
     page_query_param = "page"
+
+
+# class SendEmailTestView(APIView):
+#     permission_classes = [AllowAny]
+
+#     def get(self, request):
+#         try:
+#             send_custom_email(
+#                 "Test Email",
+#                 "This is a test email",
+#                 ["zahidulturja@gmail.com"],
+#             )
+#             return common_response(200, "Email Sent Successfully")
+#         except Exception as e:
+#             return common_response(400, str(e))
 
 
 class RegisterUserView(APIView):
