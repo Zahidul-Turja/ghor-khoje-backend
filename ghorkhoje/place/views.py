@@ -59,7 +59,9 @@ class PlaceListAPIView(APIView):
 
     def get(self, request):
         try:
-            places = Place.objects.all()
+            category_slug = request.query_params.get("category")
+            category = Category.objects.filter(slug=category_slug).first()
+            places = Place.objects.filter(category=category)
             paginator = self.pagination_class()
             paginated_places = paginator.paginate_queryset(places, request)
             serializer = self.serializer_class(paginated_places, many=True)

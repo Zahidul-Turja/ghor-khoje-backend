@@ -18,24 +18,40 @@ class TimestampedModel(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=150)
+    slug = models.SlugField(max_length=300, unique=True, blank=True, null=True)
     icon = models.ImageField(upload_to="category_icons/", null=True, blank=True)
     description = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"ID:{self.id}, Name: {self.name}"
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
     class Meta:
         db_table = "categories"
         verbose_name_plural = "Categories"
 
 
+# Auto-generate slug only if
+
+
 class Facility(models.Model):
     name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=300, unique=True, blank=True, null=True)
+    description = models.TextField(null=True, blank=True)
     icon = models.ImageField(upload_to="facility_icons/", null=True, blank=True)
     bill = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
     def __str__(self):
         return f"ID:{self.id}, Name: {self.name}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = "facilities"
