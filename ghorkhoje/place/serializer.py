@@ -11,13 +11,13 @@ from user.models import User, Review
 class FacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Facility
-        fields = ("id", "name", "bill", "icon")
+        fields = ("id", "name", "description", "slug", "bill", "icon")
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ("id", "name", "icon", "description")
+        fields = ("id", "name", "slug", "icon", "description")
 
 
 class ReviewerSerializer(serializers.ModelSerializer):
