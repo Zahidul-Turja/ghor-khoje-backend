@@ -233,7 +233,3 @@ To ensure trust and authenticity, preventing fake accounts or fraudulent listing
 17. Tin-shed
 18. Semi-pucca
 19. All Categories
-
-###
-
-app_password=

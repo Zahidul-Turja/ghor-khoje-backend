@@ -9,6 +9,34 @@ from user.serializers import UserProfileSerializer
 from utils.responses import custom_exception
 from utils.services import send_custom_email
 
+from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
+
+
+def send_otp_email(recipient_email, otp):
+    subject = "Ghor Khojee - Verify OTP Code"
+    from_email = settings.EMAIL_HOST_USER
+    to = [recipient_email]
+
+    text_content = f"Your OTP is: {otp}"  # fallback for non-HTML clients
+
+    html_content = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9;">
+        <div style="max-width: 500px; margin: auto; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+          <h2 style="text-align: center; color: #333333;">Verify Your Email</h2>
+          <p style="font-size: 16px; color: #555;">Use the OTP below to verify your email address:</p>
+          <div style="font-size: 32px; font-weight: bold; color: #2c3e50; text-align: center; margin: 20px 0;">{otp}</div>
+          <p style="font-size: 14px; color: #999;">This OTP is valid for 10 minutes. Please do not share it with anyone.</p>
+        </div>
+      </body>
+    </html>
+    """
+
+    msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
+
 
 def generate_otp():
     # return "1234"
@@ -22,11 +50,13 @@ def user_registration_service(payload):
 
     user = User.objects.create_user(**payload)
 
-    send_custom_email(
-        "Ghor Khojee OTP Verification",
-        f"Your One Time Password (OTP) is: {otp}",
-        [user.email],
-    )
+    # send_custom_email(
+    #     "Ghor Khojee OTP Verification",
+    #     f"Your One Time Password (OTP) is: {otp}",
+    #     [user.email],
+    # )
+
+    send_otp_email(user.email, otp)
     print(f"Generated OTP: {otp}")
     return user
 
