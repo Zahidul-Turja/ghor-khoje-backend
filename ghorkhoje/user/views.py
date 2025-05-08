@@ -81,10 +81,12 @@ class LoginUserAPIView(APIView):
 
     def post(self, request):
         try:
-            serializer = UserLoginSerializer(data=request.data)
+            serializer = UserLoginSerializer(
+                data=request.data, context={"request": request}
+            )
             serializer.is_valid(raise_exception=True)
             payload = serializer.validated_data
-            response = user_login_service(payload)
+            response = user_login_service(payload, request)
 
             return common_response(200, "User Logged In Successfully", response)
         except Exception as e:

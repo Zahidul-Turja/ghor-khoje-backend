@@ -76,7 +76,7 @@ def otp_verification_service(payload):
     return True
 
 
-def user_login_service(payload):
+def user_login_service(payload, request):
     email = payload.get("email")
     password = payload.get("password")
 
@@ -91,7 +91,7 @@ def user_login_service(payload):
     token = RefreshToken.for_user(user)
     update_last_login(None, user)
 
-    serializer = UserProfileSerializer(user)
+    serializer = UserProfileSerializer(user, context={"request": request})
     user = serializer.data
 
     return {
