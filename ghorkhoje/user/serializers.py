@@ -106,6 +106,8 @@ class ResetPasswordSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     address = serializers.SerializerMethodField()
     social_links = serializers.SerializerMethodField()
+    profile_image = serializers.SerializerMethodField()
+    # cover_image = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -146,6 +148,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "youtube": obj.youtube,
             "telegram": obj.telegram,
         }
+
+    def get_profile_image(self, obj):
+        request = self.context.get("request")
+        if obj.profile_image:
+            return request.build_absolute_uri(obj.profile_image.url)
+        return None
 
 
 class LandlordApplicationSerializer(serializers.ModelSerializer):

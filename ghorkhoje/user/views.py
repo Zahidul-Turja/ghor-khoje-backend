@@ -155,7 +155,9 @@ class UserProfileAPIView(APIView):
 
     def get(self, request):
         try:
-            serializer = UserProfileSerializer(request.user)
+            serializer = UserProfileSerializer(
+                request.user, context={"request": request}
+            )
             user = serializer.data
             return common_response(200, "User Profile fetched successfully.", user)
         except Exception as e:
