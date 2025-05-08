@@ -25,7 +25,9 @@ class FacilityAPIView(APIView):
     def get(self, request):
         try:
             facilities = Facility.objects.all().order_by("name")
-            serializer = FacilitySerializer(facilities, many=True)
+            serializer = FacilitySerializer(
+                facilities, many=True, context={"request": request}
+            )
             if request.accepted_renderer.format == "api":
                 return Response(serializer.data)
             return common_response(
@@ -42,7 +44,9 @@ class CategoryAPIView(APIView):
     def get(self, request):
         try:
             categories = Category.objects.all().order_by("name")
-            serializer = CategorySerializer(categories, many=True)
+            serializer = CategorySerializer(
+                categories, many=True, context={"request": request}
+            )
             if request.accepted_renderer.format == "api":
                 return Response(serializer.data)
             return common_response(
@@ -68,7 +72,9 @@ class PlaceListAPIView(APIView):
             )
             paginator = self.pagination_class()
             paginated_places = paginator.paginate_queryset(places, request)
-            serializer = self.serializer_class(paginated_places, many=True)
+            serializer = self.serializer_class(
+                paginated_places, many=True, context={"request": request}
+            )
             return paginator.get_paginated_response(serializer.data)
         except Exception as e:
             return common_response(400, str(e))
@@ -125,7 +131,7 @@ class PlaceDetailsAPIView(APIView):
     def get(self, request, slug):
         try:
             place = Place.objects.get(slug=slug)
-            serializer = self.serializer_class(place)
+            serializer = self.serializer_class(place, context={"request": request})
             if request.accepted_renderer.format == "api":
                 return Response(serializer.data)
             return common_response(

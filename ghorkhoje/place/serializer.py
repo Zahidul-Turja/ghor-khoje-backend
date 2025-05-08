@@ -9,15 +9,36 @@ from user.models import User, Review
 
 
 class FacilitySerializer(serializers.ModelSerializer):
+    icon = serializers.SerializerMethodField()
+
     class Meta:
         model = Facility
         fields = ("id", "name", "description", "slug", "bill", "icon")
 
+    def get_icon(self, instance):
+        request = self.context.get("request")
+        if instance.icon:
+            icon_url = instance.icon.url if hasattr(instance.icon, "url") else None
+            return request.build_absolute_uri(icon_url) if icon_url else None
+        return None
+
 
 class CategorySerializer(serializers.ModelSerializer):
+    icon = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
         fields = ("id", "name", "slug", "icon", "description")
+
+    def get_icon(self, instance):
+        request = self.context.get("request")
+        if instance.icon:
+            return (
+                request.build_absolute_uri(instance.icon.url)
+                if hasattr(instance.icon, "url")
+                else None
+            )
+        return None
 
 
 class ReviewerSerializer(serializers.ModelSerializer):
