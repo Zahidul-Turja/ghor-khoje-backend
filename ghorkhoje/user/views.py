@@ -243,7 +243,9 @@ class ListedPropertiesAPIView(APIView):
             properties = user.owned_places.order_by("-created_at")
             pagination = Pagination()
             properties = pagination.paginate_queryset(properties, request)
-            serializer = PlaceDetailsSerializer(properties, many=True)
+            serializer = PlaceDetailsSerializer(
+                properties, many=True, context={"request": request}
+            )
             return pagination.get_paginated_response(serializer.data)
         except Exception as e:
             return common_response(400, str(e))
