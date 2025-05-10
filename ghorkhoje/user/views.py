@@ -1,4 +1,6 @@
 import json
+import traceback
+
 
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -173,16 +175,17 @@ class UpdateProfileAPIView(APIView):
 
     def post(self, request):
         try:
+            # print(request.data)
             serializer = UpdataProfileSerializer(
                 request.user, data=request.data, partial=True
             )
-            print(request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return common_response(
                 200, "User Profile updated successfully.", serializer.data
             )
         except Exception as e:
+            traceback.print_exc()
             return common_response(400, str(e))
 
 
