@@ -160,6 +160,34 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return None
 
 
+class UpdataProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "full_name",
+            "phone",
+            "profile_image",
+            "cover_image",
+            "bio",
+            "gender",
+            "date_of_birth",
+            "nid",
+            "profession",
+            "address",
+            "country",
+            "state",
+            "city",
+            "languages",
+            "preferred_language",
+            "facebook",
+            "twitter",
+            "instagram",
+            "linkedin",
+            "youtube",
+            "telegram",
+        ]
+
+
 class LandlordApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = LandlordApplication

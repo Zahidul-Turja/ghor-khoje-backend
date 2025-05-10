@@ -1,3 +1,5 @@
+import json
+
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -165,11 +167,16 @@ class UserProfileAPIView(APIView):
         except Exception as e:
             return common_response(400, str(e))
 
-    def patch(self, request):
+
+class UpdateProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
         try:
-            serializer = UserProfileSerializer(
+            serializer = UpdataProfileSerializer(
                 request.user, data=request.data, partial=True
             )
+            print(request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return common_response(
