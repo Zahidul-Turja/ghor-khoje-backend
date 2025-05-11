@@ -9,9 +9,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Get the SECRET_KEY from environment variable or use the provided one as fallback
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY", "django-insecure-wz!)fh6xs06vo0yhqwkn$ohqln=j+e2&xkiw^i4g5u$x$ym%wc"
-)
+SECRET_KEY = os.environ.get("SECRET_KEY", "secret_key-placeholder-for-development")
 
 DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
@@ -69,19 +67,34 @@ TEMPLATES = [
 WSGI_APPLICATION = "ghorkhoje.wsgi.application"
 
 # Using the database credentials from your .env file
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DATABASE", "ghorkhoje"),
-        "USER": os.environ.get("USERNAME", "postgres"),
-        "PASSWORD": os.environ.get("PASSWORD", "postgres"),
-        "HOST": os.environ.get("HOST_NAME", "db"),
-        "PORT": os.environ.get("PORT", "5432"),
-        "OPTIONS": {
-            "sslmode": "require",  # Enable SSL mode for secure connection
-        },
+if os.environ.get("ENVIRONMENT") == "production":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("DATABASE", "ghorkhoje"),
+            "USER": os.environ.get("USERNAME", "postgres"),
+            "PASSWORD": os.environ.get("PASSWORD", "postgres"),
+            "HOST": os.environ.get("HOST_NAME", "db"),
+            "PORT": os.environ.get("PORT", "5432"),
+            "OPTIONS": {
+                "sslmode": "require",  # Enable SSL mode for secure connection
+            },
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "ghorkhoje",
+            "USER": "postgres",
+            "PASSWORD": "postgres",
+            "HOST": "db",
+            "PORT": "5432",
+            "OPTIONS": {
+                "sslmode": "prefer",  # Use SSL mode if available
+            },
+        }
+    }
 
 # Fallback to SQLite if needed
 # DATABASES = {
