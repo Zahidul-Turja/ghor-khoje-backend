@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   web:
     build: .
@@ -8,14 +6,19 @@ services:
     ports:
       - "8000:8000"
       - "8765:9876" # host:container
-    env_file:
-      - .env
+    environment:
+      - POSTGRES_DB=ghorkhoje
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=db
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - ghorkhoje-network
     command: >
       bash -c "python ghorkhoje/manage.py runserver 0.0.0.0:8000"
-
-  # Local development database
+  # python ghorkhoje/manage.py runserver 0.0.0.0:9876
   db:
     image: postgres:13
     volumes:
@@ -33,7 +36,6 @@ services:
       retries: 5
     networks:
       - ghorkhoje-network
-
   adminer:
     image: adminer
     restart: always

@@ -1,13 +1,19 @@
 from pathlib import Path
 import os
 from datetime import timedelta
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-wz!)fh6xs06vo0yhqwkn$ohqln=j+e2&xkiw^i4g5u$x$ym%wc"
+# Get the SECRET_KEY from environment variable or use the provided one as fallback
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "django-insecure-wz!)fh6xs06vo0yhqwkn$ohqln=j+e2&xkiw^i4g5u$x$ym%wc"
+)
 
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = ["*"]
 
@@ -62,27 +68,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "ghorkhoje.wsgi.application"
 
-
+# Using the database credentials from your .env file
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "ghorkhoje"),
-        "USER": os.environ.get("POSTGRES_USER", "postgres"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "postgres"),
-        "HOST": os.environ.get(
-            "POSTGRES_HOST", "db"
-        ),  # This should match the service name in docker-compose
-        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        "NAME": os.environ.get("DATABASE", "ghorkhoje"),
+        "USER": os.environ.get("USERNAME", "postgres"),
+        "PASSWORD": os.environ.get("PASSWORD", "postgres"),
+        "HOST": os.environ.get("HOST_NAME", "db"),
+        "PORT": os.environ.get("PORT", "5432"),
+        "OPTIONS": {
+            "sslmode": "require",  # Enable SSL mode for secure connection
+        },
     }
 }
 
+# Fallback to SQLite if needed
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.sqlite3",
 #         "NAME": BASE_DIR / "db.sqlite3",
 #     }
 # }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -99,7 +106,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 AUTH_USER_MODEL = "user.User"
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -107,21 +113,19 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = "turjazahidul@gmail.com"
-EMAIL_HOST_PASSWORD = "sxcxtcptrkbikwwh"
-
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "turjazahidul@gmail.com")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 
 REST_USE_JWT = True
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "rest_framework.authentication.SessionAuthentication",  # Add this too
+        "rest_framework.authentication.SessionAuthentication",  # This enables the browsable API
     ),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
         "rest_framework.permissions.IsAdminUser",
     ],
-    # Add this renderer_classes configuration
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",  # This enables the browsable API
@@ -129,10 +133,10 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
     "ALGORITHM": "HS256",
-    "SIGING_KEY": SECRET_KEY,
+    "SIGNING_KEY": SECRET_KEY,  # Fixed typo from SIGING_KEY to SIGNING_KEY
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_TOKEN_ACCESS_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "BLACKLIST_AFTER_ROTATION": True,

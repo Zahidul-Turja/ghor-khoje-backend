@@ -19,3 +19,7 @@ __pycache__
 *.db
 
 rnd/*
+
+# Add these lines to your .gitignore file
+.env
+*.env
