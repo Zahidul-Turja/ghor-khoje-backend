@@ -10,6 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Get the SECRET_KEY from environment variable or use the provided one as fallback
 SECRET_KEY = os.environ.get("SECRET_KEY", "secret_key-placeholder-for-development")
+ENVIRONMENT = os.environ.get("ENVIRONMENT")
 
 DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
@@ -33,6 +34,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "cloudinary",
+    "cloudinary_storage",
 ]
 
 MIDDLEWARE = [
@@ -174,7 +177,23 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+# MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+
+if ENVIRONMENT == "production":
+    # Production media file handling
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+    CLOUDINARY_STORAGE = {
+        "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
+        "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
+        "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
+    }
+
+    MEDIA_URL = f'https://res.cloudinary.com/{os.environ.get("CLOUDINARY_CLOUD_NAME")}/'
+else:
+    # Development/local file handling
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 OTP_LENGTH = 4
 
