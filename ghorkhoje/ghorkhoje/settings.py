@@ -188,9 +188,10 @@ if ENVIRONMENT == "production":
         "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
         "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
         "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
+        "PREFIX": "media",
     }
 
-    MEDIA_URL = f'https://res.cloudinary.com/{os.environ.get("CLOUDINARY_CLOUD_NAME")}/'
+    # MEDIA_URL = f'https://res.cloudinary.com/{os.environ.get("CLOUDINARY_CLOUD_NAME")}/'
 else:
     # Development/local file handling
     MEDIA_URL = "/media/"
