@@ -3,6 +3,8 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
+import cloudinary_storage
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -181,30 +183,20 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
 
 
 if ENVIRONMENT == "production":
-    import cloudinary
-
-    # Import the cloudinary.api for managing assets
-    import cloudinary.api
-
-    # Import the cloudinary.uploader for uploading assets
-    import cloudinary.uploader
-
-    cloudinary.config(
-        cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
-        api_key=os.environ.get("CLOUDINARY_API_KEY"),
-        api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
-        secure=True,
-    )
     # Production media file handling
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
     CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
-        "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
-        "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
-        # "PREFIX": "media",
+        "CLOUD_NAME": "dvkzd3qzc",
+        "API_KEY": "481114615443622",
+        "API_SECRET": "JdtUwrqBvc-4QZCEmLCT6QAaliU",
     }
+    # CLOUDINARY_STORAGE = {
+    #     "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    #     "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
+    #     "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
+    # }
 
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
     # MEDIA_URL = f"https://res.cloudinary.com/"
     # MEDIA_URL = "/media/"
 else:
