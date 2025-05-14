@@ -34,8 +34,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
-    "cloudinary",
     "cloudinary_storage",
+    "cloudinary",
 ]
 
 MIDDLEWARE = [
@@ -188,10 +188,10 @@ if ENVIRONMENT == "production":
         "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
         "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
         "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
-        "PREFIX": "media",
+        # "PREFIX": "media",
     }
 
-    MEDIA_URL = f"https://res.cloudinary.com/"
+    # MEDIA_URL = f"https://res.cloudinary.com/"
     # MEDIA_URL = "/media/"
 else:
     # Development/local file handling
