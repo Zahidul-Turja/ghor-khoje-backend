@@ -182,6 +182,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
 # MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": "dvkzd3qzc",
+    "API_KEY": "481114615443622",
+    "API_SECRET": "JdtUwrqBvc-4QZCEmLCT6QAaliU",
+}
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+
 if ENVIRONMENT == "production":
     # Production media file handling
 
