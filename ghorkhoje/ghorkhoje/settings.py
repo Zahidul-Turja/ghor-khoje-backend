@@ -176,7 +176,7 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
 
-MEDIA_URL = "/media/"
+# MEDIA_URL = "/media/"
 # MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 
@@ -190,9 +190,10 @@ if ENVIRONMENT == "production":
         "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
     }
 
-    MEDIA_URL = f'https://res.cloudinary.com/{os.environ.get("CLOUDINARY_CLOUD_NAME")}/'
+    # MEDIA_URL = f'https://res.cloudinary.com/{os.environ.get("CLOUDINARY_CLOUD_NAME")}/'
 else:
     # Development/local file handling
+    MEDIA_URL = "/media/"
     MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 OTP_LENGTH = 4

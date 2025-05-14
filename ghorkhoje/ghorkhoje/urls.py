@@ -4,7 +4,6 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 from ghorkhoje.views import get_random_quote
-from ghorkhoje.settings import MEDIA_URL
 from user.urls import auth_urlpatterns, user_urlpatterns, application_urlpatterns
 from place.urls import place_urlpatterns
 from booking.urls import booking_urlpatterns
