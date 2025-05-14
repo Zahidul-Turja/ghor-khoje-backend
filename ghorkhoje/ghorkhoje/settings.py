@@ -181,6 +181,20 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
 
 
 if ENVIRONMENT == "production":
+    import cloudinary
+
+    # Import the cloudinary.api for managing assets
+    import cloudinary.api
+
+    # Import the cloudinary.uploader for uploading assets
+    import cloudinary.uploader
+
+    cloudinary.config(
+        cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+        api_key=os.environ.get("CLOUDINARY_API_KEY"),
+        api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+        secure=True,
+    )
     # Production media file handling
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
