@@ -191,8 +191,8 @@ if ENVIRONMENT == "production":
         "PREFIX": "media",
     }
 
-    # MEDIA_URL = f'https://res.cloudinary.com/{os.environ.get("CLOUDINARY_CLOUD_NAME")}/'
-    MEDIA_URL = "/media/"
+    MEDIA_URL = f"https://res.cloudinary.com/"
+    # MEDIA_URL = "/media/"
 else:
     # Development/local file handling
     MEDIA_URL = "/media/"
