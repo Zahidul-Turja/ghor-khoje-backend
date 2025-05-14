@@ -190,7 +190,7 @@ if ENVIRONMENT == "production":
         "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
     }
 
-    # MEDIA_URL = f'https://res.cloudinary.com/{os.environ.get("CLOUDINARY_CLOUD_NAME")}/'
+    MEDIA_URL = f'https://res.cloudinary.com/{os.environ.get("CLOUDINARY_CLOUD_NAME")}/'
 else:
     # Development/local file handling
     MEDIA_URL = "/media/"
