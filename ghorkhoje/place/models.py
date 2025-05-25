@@ -7,6 +7,10 @@ from user.models import User
 from utils.functions import validate_image_size, unique_image_path
 from place.configs import AppointmentStatus
 
+from django.conf import settings
+
+from cloudinary_storage.storage import MediaCloudinaryStorage
+
 
 class TimestampedModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -19,7 +23,14 @@ class TimestampedModel(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=150)
     slug = models.SlugField(max_length=300, unique=True, blank=True, null=True)
-    icon = models.ImageField(upload_to="category_icons/", null=True, blank=True)
+    icon = models.ImageField(
+        upload_to="category_icons/",
+        storage=(
+            MediaCloudinaryStorage() if settings.ENVIRONMENT == "production" else None
+        ),
+        null=True,
+        blank=True,
+    )
     description = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -42,7 +53,14 @@ class Facility(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=300, unique=True, blank=True, null=True)
     description = models.TextField(null=True, blank=True)
-    icon = models.ImageField(upload_to="facility_icons/", null=True, blank=True)
+    icon = models.ImageField(
+        upload_to="facility_icons/",
+        storage=(
+            MediaCloudinaryStorage() if settings.ENVIRONMENT == "production" else None
+        ),
+        null=True,
+        blank=True,
+    )
     bill = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
     def __str__(self):
@@ -155,6 +173,9 @@ class Image(TimestampedModel):
     place = models.ForeignKey(Place, related_name="images", on_delete=models.CASCADE)
     image = models.ImageField(
         upload_to=unique_image_path,
+        storage=(
+            MediaCloudinaryStorage() if settings.ENVIRONMENT == "production" else None
+        ),
         validators=[
             FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"]),
             validate_image_size,

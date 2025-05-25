@@ -5,6 +5,9 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.db.models import Avg
+from django.conf import settings
+
+from cloudinary_storage.storage import MediaCloudinaryStorage
 
 from user.configs import UserTypes, Gender
 
@@ -40,10 +43,20 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     phone = models.CharField(max_length=14, null=True, blank=True, unique=True)
     profile_image = models.ImageField(
-        upload_to="users/profile_images/", null=True, blank=True
+        upload_to="users/profile_images/",
+        storage=(
+            MediaCloudinaryStorage() if settings.ENVIRONMENT == "production" else None
+        ),
+        null=True,
+        blank=True,
     )
     cover_image = models.ImageField(
-        upload_to="users/cover_images/", null=True, blank=True
+        upload_to="users/cover_images/",
+        storage=(
+            MediaCloudinaryStorage() if settings.ENVIRONMENT == "production" else None
+        ),
+        null=True,
+        blank=True,
     )
     bio = models.TextField(null=True, blank=True)
     gender = models.CharField(

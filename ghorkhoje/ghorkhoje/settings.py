@@ -28,6 +28,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "cloudinary_storage",
+    "cloudinary",
     "ghorkhoje",
     "user",
     "place",
@@ -36,8 +38,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
-    "cloudinary_storage",
-    "cloudinary",
 ]
 
 MIDDLEWARE = [
@@ -102,6 +102,20 @@ else:
             },
         }
     }
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.environ.get("NEON_DB_NAME", "ghorkhoje"),
+#         "USER": os.environ.get("NEON_DB_USER", "postgres"),
+#         "PASSWORD": os.environ.get("NEON_DB_PASSWORD", "postgres"),
+#         "HOST": os.environ.get("NEON_DB_HOST", "db.neon.tech"),
+#         "PORT": os.environ.get("NEON_DB_PORT", "5432"),
+#         "OPTIONS": {
+#             "sslmode": "prefer",  # Use SSL mode if available
+#         },
+#     }
+# }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -170,8 +184,21 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+if os.environ.get("ENVIRONMENT") == "production":
+    # In Production use Cloudinary
+    CLOUDINARY_STORAGE = {
+        "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
+        "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
+        "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
+    }
+
+    MEDIA_URL = "/ghorkhojee/media/"  # or any prefix you choose
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+else:
+    # In Development use Local Storage
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 
 OTP_LENGTH = 4
