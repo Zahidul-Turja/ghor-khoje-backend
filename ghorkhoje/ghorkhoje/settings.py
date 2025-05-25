@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -204,3 +205,11 @@ else:
 OTP_LENGTH = 4
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Celery Configuration Options
+CELERY_TIMEZONE = "Asia/Dhaka"
+CELERY_TASK_TRACK_STARTED = True
+
+CELERY_BROKER_URL = "redis://redis:6379"
+CELERY_RESULT_BACKEND = "redis://redis:6379"
