@@ -78,13 +78,13 @@ if os.environ.get("ENVIRONMENT") == "production":
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("DATABASE", "ghorkhoje"),
-            "USER": os.environ.get("USERNAME", "postgres"),
-            "PASSWORD": os.environ.get("PASSWORD", "postgres"),
-            "HOST": os.environ.get("HOST_NAME", "db"),
-            "PORT": os.environ.get("PORT", "5432"),
+            "NAME": os.environ.get("NEON_DB_NAME", "ghorkhoje"),
+            "USER": os.environ.get("NEON_DB_USER", "postgres"),
+            "PASSWORD": os.environ.get("NEON_DB_PASSWORD", "postgres"),
+            "HOST": os.environ.get("NEON_DB_HOST", "db.neon.tech"),
+            "PORT": os.environ.get("NEON_DB_PORT", "5432"),
             "OPTIONS": {
-                "sslmode": "require",  # Enable SSL mode for secure connection
+                "sslmode": "prefer",  # Use SSL mode if available
             },
         }
     }
@@ -102,14 +102,6 @@ else:
             },
         }
     }
-
-# Fallback to SQLite if needed
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -178,40 +170,9 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
 
-# MEDIA_URL = "/media/"
-# MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
-
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": "dvkzd3qzc",
-    "API_KEY": "481114615443622",
-    "API_SECRET": "JdtUwrqBvc-4QZCEmLCT6QAaliU",
-}
-
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-
-
-if ENVIRONMENT == "production":
-    # Production media file handling
-
-    CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": "dvkzd3qzc",
-        "API_KEY": "481114615443622",
-        "API_SECRET": "JdtUwrqBvc-4QZCEmLCT6QAaliU",
-    }
-    # CLOUDINARY_STORAGE = {
-    #     "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
-    #     "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
-    #     "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
-    # }
-
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-    # MEDIA_URL = f"https://res.cloudinary.com/"
-    # MEDIA_URL = "/media/"
-else:
-    # Development/local file handling
-    MEDIA_URL = "/media/"
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 OTP_LENGTH = 4
 
