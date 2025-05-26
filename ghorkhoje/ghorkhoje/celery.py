@@ -13,6 +13,9 @@ app = Celery("ghorkhoje")
 
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
+# Retry connection on startup
+app.conf.broker_connection_retry_on_startup = True
+
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks()
 
@@ -21,6 +24,8 @@ app.autodiscover_tasks()
 def health_check(self):
     url = "https://ghor-khoje-backend.onrender.com/health/"
     timestamp = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    print("[{}] Health check task started".format(timestamp))
 
     try:
         # Make HTTP request with timeout

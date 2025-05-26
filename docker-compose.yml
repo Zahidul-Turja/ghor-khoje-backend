@@ -26,7 +26,8 @@ services:
       - REDIS_PORT=6379
     networks:
       - ghorkhoje-network
-    command: celery -A ghorkhoje.ghorkhoje.celery worker -l info
+    command: >
+      bash -c "cd ghorkhoje && celery -A ghorkhoje.celery worker -l info"
 
   celery-beat:
     container_name: ghorkhoje-celery-beat
@@ -41,7 +42,8 @@ services:
       - web
     networks:
       - ghorkhoje-network
-    command: celery -A ghorkhoje.ghorkhoje.celery beat -l info
+    command: >
+      bash -c "cd ghorkhoje && celery -A ghorkhoje.celery beat -l info"
 
   redis:
     image: redis:latest
