@@ -21,16 +21,18 @@ def send_otp_email(recipient_email, otp):
     text_content = f"Your OTP is: {otp}"  # fallback for non-HTML clients
 
     html_content = f"""
-    <html>
-      <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9;">
-        <div style="max-width: 500px; margin: auto; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-          <h2 style="text-align: center; color: #333333;">Verify Your Email</h2>
-          <p style="font-size: 16px; color: #555;">Use the OTP below to verify your email address:</p>
-          <div style="font-size: 32px; font-weight: bold; color: #2c3e50; text-align: center; margin: 20px 0;">{otp}</div>
-          <p style="font-size: 14px; color: #999;">This OTP is valid for 10 minutes. Please do not share it with anyone.</p>
-        </div>
-      </body>
-    </html>
+        <html>
+        <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9;">
+            <div style="max-width: 500px; margin: auto; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+            <h2 style="text-align: center; color: #333333;">Verify Your Email</h2>
+            <p style="font-size: 16px; color: #555;">Use the OTP below to verify your email address:</p>
+            <div style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
+                {''.join([f'<div style="width: 40px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background-color: #eef2f7; border: 1px solid #ccc; border-radius: 5px;">{digit}</div>' for digit in otp])}
+            </div>
+            <p style="font-size: 14px; color: #999;">This OTP is valid for 10 minutes. Please do not share it with anyone.</p>
+            </div>
+        </body>
+        </html>
     """
 
     msg = EmailMultiAlternatives(subject, text_content, from_email, to)
