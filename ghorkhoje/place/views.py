@@ -124,6 +124,25 @@ class PlaceAPIView(APIView):
             return common_response(400, str(e))
 
 
+class FeaturedPlaceListAPIView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = PlaceDetailsSerializer
+
+    def get(self, request):
+        try:
+            featured_places = Place.objects.filter(featured=True, is_available=True)
+            serializer = self.serializer_class(
+                featured_places, many=True, context={"request": request}
+            )
+            if request.accepted_renderer.format == "api":
+                return Response(serializer.data)
+            return common_response(
+                200, "Featured places fetched successfully.", serializer.data
+            )
+        except Exception as e:
+            return common_response(400, str(e))
+
+
 class PlaceDetailsAPIView(APIView):
     permission_classes = [AllowAny]
     serializer_class = PlaceDetailsSerializer

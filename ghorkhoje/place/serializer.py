@@ -155,6 +155,8 @@ class PlaceDetailsSerializer(serializers.ModelSerializer):
             "appointment_status",
             "created_at",
             "is_available",
+            "featured",
+            "is_active",
         ]
 
     def get_total_per_month(self, instance):
@@ -206,6 +208,7 @@ class PlaceSerializer(serializers.ModelSerializer):
             "capacity",
             "appointment_status",
             "created_at",
+            "featured",
         ]
 
     def create(self, validated_data):

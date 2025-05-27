@@ -129,6 +129,9 @@ class Place(TimestampedModel):
         default=AppointmentStatus.APPOINTMENT_NON,
     )
     available_from = models.DateField(null=True, blank=True)
+
+    featured = models.BooleanField(default=False)
+
     is_available = models.BooleanField(default=True)
     is_active = models.BooleanField(default=False)
     is_deleted = models.BooleanField(verbose_name="Archived", default=False)
