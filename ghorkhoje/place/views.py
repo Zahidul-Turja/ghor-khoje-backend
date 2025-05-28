@@ -86,11 +86,10 @@ class PlaceAPIView(APIView):
     def post(self, request):
         try:
             print(request.data, "-------------------------------------")
-            data = request.data.copy()
             # Normalize scalar fields (convert single-item lists to strings/numbers)
             normalized_data = {
                 key: value[0] if isinstance(value, list) else value
-                for key, value in data.lists()
+                for key, value in request.data.lists()
                 if not key.startswith("images[")
             }
 
