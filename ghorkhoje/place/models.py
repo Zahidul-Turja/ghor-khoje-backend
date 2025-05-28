@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 
 from user.models import User
-from utils.functions import validate_image_size, unique_image_path
+from utils.functions import validate_image_size, unique_image_path, validate_image_file
 from place.configs import AppointmentStatus
 
 from django.conf import settings
@@ -180,7 +180,7 @@ class Image(TimestampedModel):
             MediaCloudinaryStorage() if settings.ENVIRONMENT == "production" else None
         ),
         validators=[
-            FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"]),
+            validate_image_file,
             validate_image_size,
         ],
     )
