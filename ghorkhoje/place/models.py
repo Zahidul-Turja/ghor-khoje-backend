@@ -130,7 +130,7 @@ class Place(TimestampedModel):
     )
     available_from = models.DateField(null=True, blank=True)
 
-    featured = models.BooleanField(default=False)
+    featured = models.BooleanField(default=False, null=True, blank=True)
 
     is_available = models.BooleanField(default=True)
     is_active = models.BooleanField(default=False)
