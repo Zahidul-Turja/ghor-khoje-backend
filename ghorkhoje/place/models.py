@@ -107,11 +107,11 @@ class Place(TimestampedModel):
     )
     num_prepayment_months = models.IntegerField(null=True, blank=True)
     latitude = models.DecimalField(
-        max_digits=40,
-        decimal_places=30,
+        max_digits=25,
+        decimal_places=15,
         db_index=True,
     )
-    longitude = models.DecimalField(max_digits=40, decimal_places=30, db_index=True)
+    longitude = models.DecimalField(max_digits=25, decimal_places=15, db_index=True)
     area_in_sqft = models.IntegerField(null=True, blank=True)
     num_of_bedrooms = models.IntegerField(default=1)
     num_of_bathrooms = models.IntegerField(default=1)
