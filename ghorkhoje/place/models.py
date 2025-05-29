@@ -94,24 +94,24 @@ class Place(TimestampedModel):
     facilities = models.ManyToManyField(Facility, related_name="places", blank=True)
     city = models.CharField(max_length=255)
     area_name = models.CharField(max_length=255)
-    area_code = models.CharField(max_length=20, null=True, blank=True)
-    block_name = models.CharField(max_length=10, null=True, blank=True)
-    street_name = models.CharField(max_length=40, null=True, blank=True)
+    area_code = models.CharField(max_length=50, null=True, blank=True)
+    block_name = models.CharField(max_length=50, null=True, blank=True)
+    street_name = models.CharField(max_length=50, null=True, blank=True)
     house_name = models.CharField(max_length=50, null=True, blank=True)
-    house_number = models.CharField(max_length=10, null=True, blank=True)
-    apartment_number = models.CharField(max_length=10, null=True, blank=True)
+    house_number = models.CharField(max_length=50, null=True, blank=True)
+    apartment_number = models.CharField(max_length=50, null=True, blank=True)
     floor_number = models.CharField(max_length=5, null=True, blank=True)
-    rent_per_month = models.DecimalField(max_digits=12, decimal_places=2)
+    rent_per_month = models.DecimalField(max_digits=15, decimal_places=2)
     extra_bills = models.DecimalField(
-        max_digits=6, decimal_places=2, null=True, blank=True
+        max_digits=12, decimal_places=2, null=True, blank=True
     )
     num_prepayment_months = models.IntegerField(null=True, blank=True)
     latitude = models.DecimalField(
-        max_digits=9,
-        decimal_places=6,
+        max_digits=40,
+        decimal_places=30,
         db_index=True,
     )
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, db_index=True)
+    longitude = models.DecimalField(max_digits=40, decimal_places=30, db_index=True)
     area_in_sqft = models.IntegerField(null=True, blank=True)
     num_of_bedrooms = models.IntegerField(default=1)
     num_of_bathrooms = models.IntegerField(default=1)

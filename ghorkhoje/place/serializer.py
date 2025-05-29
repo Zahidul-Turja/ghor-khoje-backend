@@ -221,6 +221,8 @@ class PlaceSerializer(serializers.ModelSerializer):
 
         while transaction.atomic():
             for facility in facilities_data:
+                if facility == "":
+                    continue
                 facility_instance = Facility.objects.get(id=facility)
                 place.facilities.add(facility_instance)
 

@@ -114,7 +114,7 @@ class PlaceAPIView(APIView):
                 return common_response(
                     201,
                     "Place created successfully.",
-                    PlaceDetailsSerializer(place).data,
+                    PlaceDetailsSerializer(place, context={"request": request}).data,
                 )
             else:
                 return common_response(400, "Invalid data.", serializer.errors)
