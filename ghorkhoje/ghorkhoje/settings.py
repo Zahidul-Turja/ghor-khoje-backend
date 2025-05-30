@@ -34,11 +34,12 @@ INSTALLED_APPS = [
     "user",
     "place",
     "booking",
+    "feedback",
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
-    "django_celery_beat",
+    # "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -208,13 +209,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Celery Configuration Options
-CELERY_BROKER_URL = "redis://redis:6379"
-CELERY_RESULT_BACKEND = "redis://redis:6379"
-CELERY_TIMEZONE = "Asia/Dhaka"
-CELERY_TASK_TRACK_STARTED = True
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
+# CELERY_BROKER_URL = "redis://redis:6379"
+# CELERY_RESULT_BACKEND = "redis://redis:6379"
+# CELERY_TIMEZONE = "Asia/Dhaka"
+# CELERY_TASK_TRACK_STARTED = True
+# CELERY_ACCEPT_CONTENT = ["json"]
+# CELERY_TASK_SERIALIZER = "json"
+# CELERY_RESULT_SERIALIZER = "json"
 
-# For periodic tasks
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+# # For periodic tasks
+# CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
