@@ -20,23 +20,8 @@ class Status(models.Model):
 
 
 class Feedback(models.Model):
-    # STATUS_CHOICES = [
-    #     ("new", "New"),
-    #     ("in_progress", "In Progress"),
-    #     ("resolved", "Resolved"),
-    #     ("closed", "Closed"),
-    #     ("archived", "Archived"),
-    #     ("deleted", "Deleted"),
-    #     ("spam", "Spam"),
-    #     ("flagged", "Flagged"),
-    #     ("important", "Important"),
-    #     ("feature_request", "Feature Request"),
-    #     ("bug_report", "Bug Report"),
-    #     ("complaint", "Complaint"),
-    #     ("suggestion", "Suggestion"),
-    # ]
     status = models.ForeignKey(
-        Status, on_delete=models.CASCADE, related_name="feedbacks", default=1
+        Status, on_delete=models.CASCADE, related_name="feedbacks"
     )
     feedback_type = models.ForeignKey(
         FeedbackType, on_delete=models.CASCADE, related_name="feedbacks"
@@ -49,18 +34,6 @@ class Feedback(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # is_resolved = models.BooleanField(default=False)
-    # is_public = models.BooleanField(default=True)
-    # is_anonymous = models.BooleanField(default=False)
-    # is_archived = models.BooleanField(default=False)
-    # is_deleted = models.BooleanField(default=False)
-    # is_spam = models.BooleanField(default=False)
-    # is_flagged = models.BooleanField(default=False)
-    # is_important = models.BooleanField(default=False)
-    # is_feature_request = models.BooleanField(default=False)
-    # is_bug_report = models.BooleanField(default=False)
-    # is_complaint = models.BooleanField(default=False)
-    # is_suggestion = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.subject} - {self.name} ({self.email})"

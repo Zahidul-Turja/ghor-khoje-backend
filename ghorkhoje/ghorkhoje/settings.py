@@ -3,8 +3,6 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
-import cloudinary_storage
-
 # Load environment variables from .env file
 load_dotenv()
 

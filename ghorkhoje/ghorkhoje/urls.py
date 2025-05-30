@@ -7,6 +7,7 @@ from ghorkhoje.views import get_random_quote
 from user.urls import auth_urlpatterns, user_urlpatterns, application_urlpatterns
 from place.urls import place_urlpatterns
 from booking.urls import booking_urlpatterns
+from feedback.urls import feedback_urlpatterns
 
 api_v1_urls = [
     path("auth/", include(auth_urlpatterns), name="auth_urls"),
@@ -14,6 +15,7 @@ api_v1_urls = [
     path("application/", include(application_urlpatterns), name="application_urls"),
     path("places/", include(place_urlpatterns), name="place_urls"),
     path("booking/", include(booking_urlpatterns), name="booking_urls"),
+    path("feedback/", include(feedback_urlpatterns), name="feedback_urls"),
 ]
 
 urlpatterns = [
