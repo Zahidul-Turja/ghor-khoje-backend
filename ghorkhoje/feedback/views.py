@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 
+from utils.services import send_custom_email
+
 from feedback.models import *
 from feedback.serializers import *
 
@@ -51,8 +53,14 @@ class CreateFeedbackView(APIView):
                 "status": "success",
                 "results": serializer.data,
             }
-            # Optionally, you can send an email notification here
-            # send_email_notification(serializer.data)
+            if data.get("want_to_be_contacted"):
+                subject = f"Feedback Received: {data.get('subject', 'No Subject')}"
+                message = f"Thank you for your feedback, {data.get('name', 'User')}! We will get back to you soon."
+                send_custom_email(
+                    subject=subject,
+                    message=message,
+                    recipient_list=[data.get("email")],
+                )
 
             return Response(response, status=status.HTTP_201_CREATED)
         response = {
