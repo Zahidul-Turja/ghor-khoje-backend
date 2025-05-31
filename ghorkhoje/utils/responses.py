@@ -4,7 +4,7 @@ CUSTOM_EXCEPTION_FLAG = "custom_exception: "
 
 
 def custom_exception(error_message):
-    error_message = f"{CUSTOM_EXCEPTION_FLAG}{error_message}"
+    error_message = f"{error_message}"
     raise Exception(error_message)
 
 
@@ -25,11 +25,11 @@ def common_response(status_code, message, data=None, **args):
         response_payload["message"] = error.replace(CUSTOM_EXCEPTION_FLAG, "")
 
     if success:
-        response_payload["status"] = True
+        response_payload["status"] = "success"
         if data != None:
             response_payload["data"] = data
     else:
-        response_payload["status"] = False
+        response_payload["status"] = "failed"
         if error != None:
             response_payload["error"] = error
 

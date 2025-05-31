@@ -16,6 +16,8 @@ auth_urlpatterns = [
     path("change-password/", ChangePasswordAPIView.as_view(), name="change_password"),
     path("forget-password/", ForgetPasswordAPIView.as_view(), name="forget_password"),
     path("reset-password/", ResetPasswordAPIView.as_view(), name="reset_password"),
+    path("resend-otp/", ResendOTPAPIView.as_view(), name="resend_otp"),
+    path("send-otp-email/", SendOTPEmailAPIView.as_view(), name="send_otp_email"),
 ]
 
 user_urlpatterns = [

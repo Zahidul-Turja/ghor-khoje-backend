@@ -13,6 +13,7 @@ from user.helpers import (
     otp_verification_service,
     user_login_service,
     forget_password_service,
+    resend_otp_service,
 )
 from user.models import *
 from user.serializers import *
@@ -28,21 +29,6 @@ class Pagination(PageNumberPagination):
     page_size_query_param = "page_size"
     max_page_size = 100
     page_query_param = "page"
-
-
-# class SendEmailTestView(APIView):
-#     permission_classes = [AllowAny]
-
-#     def get(self, request):
-#         try:
-#             send_custom_email(
-#                 "Test Email",
-#                 "This is a test email",
-#                 ["zahidulturja@gmail.com"],
-#             )
-#             return common_response(200, "Email Sent Successfully")
-#         except Exception as e:
-#             return common_response(400, str(e))
 
 
 class RegisterUserView(APIView):
@@ -135,6 +121,36 @@ class ResetPasswordAPIView(APIView):
             serializer.save()
 
             return common_response(200, "Password reset successfully.")
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+class ResendOTPAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            serializer = EmailSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            payload = serializer.validated_data
+            forget_password_service(payload)
+
+            return common_response(200, "OTP sent successfully.")
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+class SendOTPEmailAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            serializer = EmailSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            payload = serializer.validated_data
+            resend_otp_service(payload)
+
+            return common_response(200, "OTP sent successfully.")
         except Exception as e:
             return common_response(400, str(e))
 

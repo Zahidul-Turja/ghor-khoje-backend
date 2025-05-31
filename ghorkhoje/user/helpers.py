@@ -26,7 +26,7 @@ def send_otp_email(recipient_email, otp):
             <div style="max-width: 500px; margin: auto; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
             <h2 style="text-align: center; color: #333333;">Verify Your Email</h2>
             <p style="font-size: 16px; color: #555;">Use the OTP below to verify your email address:</p>
-            <div style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
+            <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px 0;">
                 {''.join([f'<div style="width: 40px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background-color: #eef2f7; border: 1px solid #ccc; border-radius: 5px;">{digit}</div>' for digit in otp])}
             </div>
             <p style="font-size: 14px; color: #999;">This OTP is valid for 10 minutes. Please do not share it with anyone.</p>
@@ -63,6 +63,28 @@ def user_registration_service(payload):
     return user
 
 
+def resend_otp_service(payload):
+    email = payload.get("email")
+    user = User.objects.filter(email=email).first()
+
+    if user is None:
+        custom_exception("User does not exist.")
+
+    otp = generate_otp()
+    user.otp = otp
+    user.save()
+
+    # send_custom_email(
+    #     "Ghor Khojee OTP Verification",
+    #     f"Your One Time Password (OTP) is: {otp}",
+    #     [user.email],
+    # )
+
+    send_otp_email(user.email, otp)
+    print(f"Resent OTP: {otp}")
+    return True
+
+
 def otp_verification_service(payload):
     email = payload.get("email")
     otp = payload.get("otp")
@@ -84,6 +106,8 @@ def user_login_service(payload, request):
 
     try:
         user = User.objects.get(email=email)
+        if user.is_active is False:
+            custom_exception("User is not active. Please verify your email first.")
     except User.DoesNotExist:
         custom_exception("User does not exist.")
 
