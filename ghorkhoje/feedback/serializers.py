@@ -18,7 +18,15 @@ class StatusSerializer(serializers.ModelSerializer):
 class CreateFeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
-        fields = "__all__"
+        fields = [
+            "name",
+            "email",
+            "subject",
+            "message",
+            "want_to_be_contacted",
+            "feedback_type",
+            "status",
+        ]
 
 
 class FeedbackSerializer(serializers.ModelSerializer):

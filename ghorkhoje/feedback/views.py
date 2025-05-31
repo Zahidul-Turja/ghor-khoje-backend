@@ -40,12 +40,15 @@ class CreateFeedbackView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = CreateFeedbackSerializer(data=request.data)
+        status_new = Status.objects.get(name="New")
+        data = request.data.copy()
+        data["status"] = status_new.id
+        serializer = CreateFeedbackSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             response = {
                 "message": "Feedback created successfully.",
-                "status": status.HTTP_201_CREATED,
+                "status": "success",
                 "results": serializer.data,
             }
             # Optionally, you can send an email notification here
@@ -68,7 +71,7 @@ class FeedbackListView(APIView):
         serializer = FeedbackSerializer(feedbacks, many=True)
         response = {
             "message": "Feedbacks retrieved successfully.",
-            "status": status.HTTP_200_OK,
+            "status": "success",
             "results": serializer.data,
         }
         return Response(response, status=status.HTTP_200_OK)

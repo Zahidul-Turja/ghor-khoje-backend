@@ -5,28 +5,25 @@ from .models import Feedback, FeedbackType, Status
 
 # Register your models here.
 class FeedbackTypeAdmin(admin.ModelAdmin):
-    list_display = ("name",)
+    list_display = ("name", "id")
     search_fields = ("name",)
     ordering = ("name",)
 
 
 class StatusAdmin(admin.ModelAdmin):
-    list_display = ("name",)
+    list_display = ("name", "id")
     search_fields = ("name",)
     ordering = ("name",)
 
 
 class FeedbackAdmin(admin.ModelAdmin):
     list_display = (
-        "status",
+        "id",
         "feedback_type",
-        "email",
-        "name",
+        "status",
         "subject",
         "message",
         "want_to_be_contacted",
-        "created_at",
-        "updated_at",
     )
     search_fields = ("email", "name", "subject", "message")
     list_filter = ("status", "feedback_type", "want_to_be_contacted")

@@ -13,6 +13,6 @@ feedback_urlpatterns = [
         StatusListView.as_view(),
         name="status_list",
     ),
-    path("give-feedback/", CreateFeedbackView.as_view(), name="create_feedback"),
+    path("submit-feedback/", CreateFeedbackView.as_view(), name="create_feedback"),
     path("feedback-list/", FeedbackListView.as_view(), name="feedback_list"),
 ]
