@@ -27,11 +27,21 @@ class BookingAPIView(APIView):
             data = request.data.copy()
             data["booked_by"] = request.user.id
             place = Place.objects.filter(id=request.data.get("place")).first()
+            if place.owner == request.user:
+                return JsonResponse(
+                    {
+                        "status": "failed",
+                        "message": "You cannot book your own place.",
+                    },
+                    status=400,
+                )
+
             if not place:
                 place = Place.objects.filter(slug=request.data.get("place")).first()
             if not place:
                 return JsonResponse(
-                    {"status": "failed", "message": "Place not found."}, status=404
+                    {"status": "failed", "message": "Place not found."},
+                    status=404,
                 )
             if not place.is_available:
                 return JsonResponse(
@@ -80,7 +90,11 @@ class BookingRequestListAPIView(APIView):
             bookings = Booking.objects.filter(place__owner=user).order_by("-created_at")
             if not bookings:
                 return JsonResponse(
-                    {"status": "failed", "message": "No booking requests found."},
+                    {
+                        "status": "failed",
+                        "message": "No booking requests found.",
+                        "results": [],
+                    },
                 )
 
             paginator = StandardResultsSetPagination()
