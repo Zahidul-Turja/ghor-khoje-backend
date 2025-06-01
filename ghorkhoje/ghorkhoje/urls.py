@@ -14,7 +14,7 @@ api_v1_urls = [
     path("user/", include(user_urlpatterns), name="user_urls"),
     path("application/", include(application_urlpatterns), name="application_urls"),
     path("places/", include(place_urlpatterns), name="place_urls"),
-    path("booking/", include(booking_urlpatterns), name="booking_urls"),
+    path("bookings/", include(booking_urlpatterns), name="booking_urls"),
     path("feedback/", include(feedback_urlpatterns), name="feedback_urls"),
 ]
 

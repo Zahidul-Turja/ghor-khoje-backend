@@ -66,9 +66,9 @@ class PlaceListAPIView(APIView):
             category_slug = request.query_params.get("category")
             category = Category.objects.filter(slug=category_slug).first()
             places = (
-                Place.objects.filter(category=category)
+                Place.objects.filter(category=category, is_available=True)
                 if category_slug != "all"
-                else Place.objects.all()
+                else Place.objects.filter(is_available=True).all()
             )
             paginator = self.pagination_class()
             paginated_places = paginator.paginate_queryset(places, request)

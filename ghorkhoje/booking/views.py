@@ -8,6 +8,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from booking.serilizers import BookingCreationSerializer
 from place.models import Place
 
+import traceback
+
 
 # Create your views here.
 class BookingAPIView(APIView):
@@ -17,8 +19,22 @@ class BookingAPIView(APIView):
         try:
             data = request.data.copy()
             data["booked_by"] = request.user.id
-            place = Place.objects.get(id=request.data["place"])
-            contract_duration = int(request.data["contract_duration"])
+            place = Place.objects.filter(id=request.data.get("place")).first()
+            if not place:
+                place = Place.objects.filter(slug=request.data.get("place")).first()
+            if not place:
+                return JsonResponse(
+                    {"status": "failed", "message": "Place not found."}, status=404
+                )
+            if not place.is_available:
+                return JsonResponse(
+                    {
+                        "status": "failed",
+                        "message": "This place is already booked and not available for booking.",
+                    },
+                )
+
+            contract_duration = int(request.data.get("contract_duration", 6))
             move_out_date = timezone.now().date() + relativedelta(
                 months=contract_duration
             )
@@ -37,7 +53,12 @@ class BookingAPIView(APIView):
                 serializer.save()
 
             return JsonResponse(
-                {"message": "Booking created successfully.", "data": serializer.data}
+                {
+                    "status": "success",
+                    "message": "Booking created successfully.",
+                    "data": serializer.data,
+                }
             )
         except Exception as e:
-            return JsonResponse({"message": str(e)})
+            traceback.print_exc()
+            return JsonResponse({"message": str(e)}, status=500)
