@@ -4,11 +4,18 @@ from dateutil.relativedelta import relativedelta
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.pagination import PageNumberPagination
 
-from booking.serilizers import BookingCreationSerializer
+from booking.serilizers import *
 from place.models import Place
 
 import traceback
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 # Create your views here.
@@ -30,7 +37,7 @@ class BookingAPIView(APIView):
                 return JsonResponse(
                     {
                         "status": "failed",
-                        "message": "This place is already booked and not available for booking.",
+                        "message": "This place is already booked or not available.",
                     },
                 )
 
@@ -58,6 +65,53 @@ class BookingAPIView(APIView):
                     "message": "Booking created successfully.",
                     "data": serializer.data,
                 }
+            )
+        except Exception as e:
+            traceback.print_exc()
+            return JsonResponse({"message": str(e)}, status=500)
+
+
+class BookingRequestListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        try:
+            bookings = Booking.objects.filter(place__owner=user).order_by("-created_at")
+            if not bookings:
+                return JsonResponse(
+                    {"status": "failed", "message": "No booking requests found."},
+                )
+
+            paginator = StandardResultsSetPagination()
+            paginated_bookings = paginator.paginate_queryset(bookings, request)
+            serializer = BookingRequestListSerializer(
+                paginated_bookings, many=True, context={"request": request}
+            )
+
+            return paginator.get_paginated_response(serializer.data)
+
+        except Exception as e:
+            traceback.print_exc()
+            return JsonResponse({"message": str(e)}, status=500)
+
+
+class BookingRequestDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, booking_id):
+        try:
+            booking = Booking.objects.filter(id=booking_id).first()
+            if not booking:
+                return JsonResponse(
+                    {"status": "failed", "message": "Booking not found."}, status=404
+                )
+
+            serializer = BookingRequestListSerializer(
+                booking, context={"request": request}
+            )
+            return JsonResponse(
+                {"status": "success", "data": serializer.data}, status=200
             )
         except Exception as e:
             traceback.print_exc()
