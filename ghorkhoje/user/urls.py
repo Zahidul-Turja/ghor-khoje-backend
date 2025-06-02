@@ -34,6 +34,7 @@ user_urlpatterns = [
         ListedPropertiesAPIView.as_view(),
         name="listed_properties",
     ),
+    path("about-host/<int:pk>/", AboutHostAPIView.as_view(), name="about_host"),
 ]
 
 application_urlpatterns = [

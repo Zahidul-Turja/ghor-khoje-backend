@@ -275,3 +275,20 @@ class ListedPropertiesAPIView(APIView):
             return pagination.get_paginated_response(serializer.data)
         except Exception as e:
             return common_response(400, str(e))
+
+
+class AboutHostAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk):
+        try:
+            user = User.objects.filter(id=pk).first()
+            if not user:
+                return common_response(404, "User not found.")
+
+            serializer = AboutHostSerializer(user, context={"request": request})
+            return common_response(
+                200, "User profile fetched successfully.", serializer.data
+            )
+        except Exception as e:
+            return common_response(400, str(e))

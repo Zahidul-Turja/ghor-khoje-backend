@@ -6,6 +6,9 @@ from ghorkhoje.settings import OTP_LENGTH
 from user.models import *
 from utils.responses import custom_exception
 
+from place.models import Place
+from place.serializer import CategorySerializer
+
 
 class UserRegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField(required=False)
@@ -198,3 +201,142 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = ["id", "title", "message", "type", "status", "created_at", "is_read"]
+
+
+class ReviewerSerializer(serializers.ModelSerializer):
+    profile_image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["id", "full_name", "profile_image"]
+
+    def get_profile_image(self, obj):
+        request = self.context.get("request")
+        if obj.profile_image:
+            return (
+                request.build_absolute_uri(obj.profile_image.url)
+                if hasattr(obj.profile_image, "url")
+                else None
+            )
+        return None
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    reviewer = ReviewerSerializer()
+
+    class Meta:
+        model = Review
+        fields = "__all__"
+
+
+class PlaceSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+
+    class Meta:
+        model = Place
+        fields = [
+            "id",
+            "created_at",
+            "title",
+            "slug",
+            "description",
+            "city",
+            "area_name",
+            "area_code",
+            "block_name",
+            "street_name",
+            "house_name",
+            "house_number",
+            "apartment_number",
+            "floor_number",
+            "rent_per_month",
+            "extra_bills",
+            "latitude",
+            "longitude",
+            "area_in_sqft",
+            "num_of_bedrooms",
+            "num_of_bathrooms",
+            "num_of_balconies",
+            "num_of_kitchens",
+            "num_of_living_rooms",
+            "num_of_dining_rooms",
+            "num_of_parking_spaces",
+            "capacity",
+            "appointment_status",
+            "available_from",
+            "featured",
+            "is_available",
+            "category",
+        ]
+
+
+class AboutHostSerializer(serializers.ModelSerializer):
+    address = serializers.SerializerMethodField()
+    social_links = serializers.SerializerMethodField()
+    profile_image = serializers.SerializerMethodField()
+
+    average_rating = serializers.SerializerMethodField()
+    reviews = serializers.SerializerMethodField()
+    hosted_places = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "full_name",
+            "email",
+            "phone",
+            "profile_image",
+            "bio",
+            "gender",
+            "date_of_birth",
+            "user_type",
+            "profession",
+            "address",
+            "languages",
+            "preferred_language",
+            "social_links",
+            "created_at",
+            "average_rating",
+            "reviews",
+            "hosted_places",
+        ]
+
+    def get_address(self, obj):
+        return {
+            "address": obj.address,
+            "country": obj.country,
+            "state": obj.state,
+            "city": obj.city,
+        }
+
+    def get_social_links(self, obj):
+        return {
+            "facebook": obj.facebook,
+            "twitter": obj.twitter,
+            "instagram": obj.instagram,
+            "linkedin": obj.linkedin,
+            "youtube": obj.youtube,
+            "telegram": obj.telegram,
+        }
+
+    def get_profile_image(self, obj):
+        request = self.context.get("request")
+        if obj.profile_image:
+            return (
+                request.build_absolute_uri(obj.profile_image.url)
+                if hasattr(obj.profile_image, "url")
+                else None
+            )
+        return None
+
+    def get_average_rating(self, obj):
+        return obj.get_average_rating()
+
+    def get_reviews(self, obj):
+        reviews = obj.received_reviews.all()
+        return ReviewSerializer(reviews, many=True, context=self.context).data
+
+    def get_hosted_places(self, obj):
+        places = obj.owned_places.all()
+        return PlaceSerializer(places, many=True, context=self.context).data
