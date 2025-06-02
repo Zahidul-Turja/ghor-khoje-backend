@@ -130,3 +130,39 @@ class BookingRequestDetailAPIView(APIView):
         except Exception as e:
             traceback.print_exc()
             return JsonResponse({"message": str(e)}, status=500)
+
+
+class UpdateBookingStatusAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            booking = Booking.objects.filter(id=pk).first()
+            if not booking:
+                return JsonResponse(
+                    {"status": "failed", "message": "Booking not found."}, status=404
+                )
+
+            if booking.place.owner != request.user:
+                return JsonResponse(
+                    {
+                        "status": "failed",
+                        "message": "You are not authorized to update this booking.",
+                    },
+                    status=403,
+                )
+
+            serializer = UpdateBookingStatusSerializer(booking, data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+
+            return JsonResponse(
+                {
+                    "status": "success",
+                    "message": "Booking status updated successfully.",
+                    "data": serializer.data,
+                }
+            )
+        except Exception as e:
+            traceback.print_exc()
+            return JsonResponse({"message": str(e)}, status=500)

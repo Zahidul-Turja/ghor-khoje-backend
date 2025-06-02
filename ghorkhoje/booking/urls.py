@@ -9,4 +9,9 @@ booking_urlpatterns = [
         BookingRequestListAPIView.as_view(),
         name="booking_requests",
     ),
+    path(
+        "update-booking-status/<int:pk>/",
+        UpdateBookingStatusAPIView.as_view(),
+        name="update_booking_status",
+    ),
 ]

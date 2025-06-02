@@ -67,3 +67,9 @@ class BookingRequestListSerializer(serializers.ModelSerializer):
         if user:
             return UserProfileSerializer(user, context=self.context).data
         return None
+
+
+class UpdateBookingStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = ["status"]
