@@ -7,7 +7,7 @@ from user.models import *
 from utils.responses import custom_exception
 
 from place.models import Place
-from place.serializer import CategorySerializer
+from place.serializer import CategorySerializer, ImageSerializer
 
 
 class UserRegistrationSerializer(serializers.Serializer):
@@ -231,6 +231,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class PlaceSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Place
@@ -267,7 +268,19 @@ class PlaceSerializer(serializers.ModelSerializer):
             "featured",
             "is_available",
             "category",
+            "image",
         ]
+
+    def get_image(self, obj):
+        request = self.context.get("request")
+        if obj.images.exists():
+            image = obj.images.first()
+            return (
+                request.build_absolute_uri(image.image.url)
+                if hasattr(image.image, "url")
+                else None
+            )
+        return None
 
 
 class AboutHostSerializer(serializers.ModelSerializer):
