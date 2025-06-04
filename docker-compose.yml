@@ -45,10 +45,14 @@ services:
   #   command: >
   #     bash -c "cd ghorkhoje && celery -A ghorkhoje.celery beat -l info"
 
-  # redis:
-  #   image: redis:latest
-  #   networks:
-  #     - ghorkhoje-network
+  redis:
+    image: redis:5
+    container_name: redis
+    restart: always
+    volumes:
+      - redisdata:/data
+    networks:
+      - ghorkhoje-network
 
   web:
     build: .
@@ -101,3 +105,4 @@ networks:
 
 volumes:
   postgres_data:
+  redisdata:

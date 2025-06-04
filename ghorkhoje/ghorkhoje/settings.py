@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     "place",
     "booking",
     "feedback",
+    "chat",
+    "channels",
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
@@ -71,7 +73,17 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "ghorkhoje.wsgi.application"
+# WSGI_APPLICATION = "ghorkhoje.wsgi.application"
+ASGI_APPLICATION = "ghorkhoje.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
 
 # Using the database credentials from your .env file
 if os.environ.get("ENVIRONMENT") == "production":
