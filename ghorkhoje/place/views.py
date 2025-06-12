@@ -1,7 +1,5 @@
 import traceback
 
-import json
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -9,6 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from place.models import *
 from place.serializer import *
+from user.models import Notification
 from utils.responses import common_response
 
 
@@ -111,12 +110,28 @@ class PlaceAPIView(APIView):
 
             if serializer.is_valid(raise_exception=True):
                 place = serializer.create(serializer.validated_data)
+
+                Notification.objects.create(
+                    user=request.user,
+                    title="Place Created",
+                    message="Place created successfully.",
+                    type="success",
+                    is_read=False,
+                )
+
                 return common_response(
                     201,
                     "Place created successfully.",
                     PlaceDetailsSerializer(place, context={"request": request}).data,
                 )
             else:
+                Notification.objects.create(
+                    user=request.user,
+                    title="Place Creation Failed",
+                    message="Something went wrong. Please try again later or contact support.",
+                    type="error",
+                    is_read=False,
+                )
                 return common_response(400, "Invalid data.", serializer.errors)
         except Exception as e:
             traceback.print_exc()

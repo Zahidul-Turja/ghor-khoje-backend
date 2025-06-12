@@ -1,16 +1,16 @@
+import random
 from django.db.models import Q
 from django.contrib.auth.models import update_last_login
 from rest_framework_simplejwt.tokens import RefreshToken
-import random
+from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
 
 from ghorkhoje.settings import OTP_LENGTH
-from user.models import User
+from user.models import User, Notification
+
 from user.serializers import UserProfileSerializer
 from utils.responses import custom_exception
 from utils.services import send_custom_email
-
-from django.core.mail import EmailMultiAlternatives
-from django.conf import settings
 
 
 def send_otp_email(recipient_email, otp):
@@ -51,6 +51,14 @@ def user_registration_service(payload):
     payload.pop("confirm_password", None)
 
     user = User.objects.create_user(**payload)
+
+    Notification.objects.create(
+        user=user,
+        title="Account Created",
+        message="Your account has been created successfully.",
+        type="success",
+        is_read=False,
+    )
 
     # send_custom_email(
     #     "Ghor Khojee OTP Verification",
@@ -96,6 +104,14 @@ def otp_verification_service(payload):
     user.is_active = True
     user.otp = ""
     user.save()
+
+    Notification.objects.create(
+        user=user,
+        title="Welcome to Ghor Khojee",
+        message="Your account has been verified successfully.",
+        type="success",
+        is_read=False,
+    )
 
     return True
 

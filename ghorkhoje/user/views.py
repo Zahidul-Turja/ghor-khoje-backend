@@ -239,6 +239,13 @@ class LandlordApplicationAPIView(APIView):
             serializer = LandlordApplicationSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            Notification.objects.create(
+                user=request.user,
+                title="Landlord Application",
+                message="Landlord Application submitted successfully.",
+                type="success",
+                is_read=False,
+            )
             return common_response(200, "Landlord Application submitted successfully.")
         except Exception as e:
             return common_response(400, str(e))
