@@ -65,8 +65,10 @@ services:
       - .env
     networks:
       - ghorkhoje-network
+    # command: >
+    #   bash -c "python ghorkhoje/manage.py runserver 0.0.0.0:8000"
     command: >
-      bash -c "python ghorkhoje/manage.py runserver 0.0.0.0:8000"
+      bash -c "cd ghorkhoje && uvicorn ghorkhoje.asgi:application --host 0.0.0.0 --port 8000 --reload"
 
   # Local development database
   db:

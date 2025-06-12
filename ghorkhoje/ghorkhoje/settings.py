@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "feedback",
     "chat",
     "channels",
+    "channels_postgres",
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
@@ -76,11 +77,25 @@ TEMPLATES = [
 # WSGI_APPLICATION = "ghorkhoje.wsgi.application"
 ASGI_APPLICATION = "ghorkhoje.asgi.application"
 
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("redis", 6379)],
+#         },
+#     },
+# }
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "BACKEND": "channels_postgres.core.PostgresChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)],
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("NEON_DB_NAME", "ghorkhoje"),
+            "USER": os.environ.get("NEON_DB_USER", "postgres"),
+            "PASSWORD": os.environ.get("NEON_DB_PASSWORD", "postgres"),
+            "HOST": os.environ.get("NEON_DB_HOST", "db.neon.tech"),
+            "PORT": os.environ.get("NEON_DB_PORT", "5432"),
         },
     },
 }
