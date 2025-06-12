@@ -6,6 +6,7 @@ from django.contrib.auth.models import (
 )
 from django.db.models import Avg
 from django.conf import settings
+from django.contrib.auth.models import Group
 
 from cloudinary_storage.storage import MediaCloudinaryStorage
 
@@ -17,10 +18,20 @@ class CustomUserManager(BaseUserManager):
         if not email:
             raise ValueError("The Email field must be set")
         email = self.normalize_email(email)
+        extra_fields["is_active"] = True
+        extra_fields["is_staff"] = True
+
         user = self.model(email=email, **extra_fields)
         if password:
             user.set_password(password)
         user.save(using=self._db)
+
+        try:
+            group, created = Group.objects.get_or_create(name="application_admin")
+            user.groups.add(group)
+        except Exception as e:
+            print(e)
+            pass
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):

@@ -15,7 +15,7 @@ class ReviewInline(admin.TabularInline):
 class UserAdmin(admin.ModelAdmin):
     inlines = [ReviewInline]
     list_display = ("id", "full_name", "email", "phone", "user_type")
-    exclude = ("password", "groups", "user_permissions")
+    exclude = ("password", "user_permissions")
     list_filter = ("user_type", "is_deleted")
     search_fields = ("full_name", "email", "phone")
     ordering = ("-created_at",)
@@ -27,9 +27,14 @@ class LandlordAdmin(admin.ModelAdmin):
     list_filter = ("status",)
     search_fields = ("user__full_name", "user__email")
     ordering = ("-application_date",)
+    readonly_fields = ("applicant_info", "application_date", "updated_at")
     list_per_page = 20
 
-    readonly_fields = ("applicant_info", "application_date", "updated_at")
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs  # Allow superusers to see all
+        return qs.filter(user=request.user)
 
     fieldsets = (
         (
