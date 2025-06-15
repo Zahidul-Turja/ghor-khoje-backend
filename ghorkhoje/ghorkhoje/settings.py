@@ -77,28 +77,6 @@ TEMPLATES = [
 # WSGI_APPLICATION = "ghorkhoje.wsgi.application"
 ASGI_APPLICATION = "ghorkhoje.asgi.application"
 
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [("redis", 6379)],
-#         },
-#     },
-# }
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_postgres.core.PostgresChannelLayer",
-        "CONFIG": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("NEON_DB_NAME", "ghorkhoje"),
-            "USER": os.environ.get("NEON_DB_USER", "postgres"),
-            "PASSWORD": os.environ.get("NEON_DB_PASSWORD", "postgres"),
-            "HOST": os.environ.get("NEON_DB_HOST", "db.neon.tech"),
-            "PORT": os.environ.get("NEON_DB_PORT", "5432"),
-        },
-    },
-}
 
 # Using the database credentials from your .env file
 if os.environ.get("ENVIRONMENT") == "production":
@@ -115,6 +93,20 @@ if os.environ.get("ENVIRONMENT") == "production":
             },
         }
     }
+
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_postgres.core.PostgresChannelLayer",
+            "CONFIG": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": os.environ.get("NEON_DB_NAME", "ghorkhoje"),
+                "USER": os.environ.get("NEON_DB_USER", "postgres"),
+                "PASSWORD": os.environ.get("NEON_DB_PASSWORD", "postgres"),
+                "HOST": os.environ.get("NEON_DB_HOST", "db.neon.tech"),
+                "PORT": os.environ.get("NEON_DB_PORT", "5432"),
+            },
+        },
+    }
 else:
     DATABASES = {
         "default": {
@@ -128,6 +120,15 @@ else:
                 "sslmode": "prefer",  # Use SSL mode if available
             },
         }
+    }
+
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("redis", 6379)],
+            },
+        },
     }
 
 # DATABASES = {
