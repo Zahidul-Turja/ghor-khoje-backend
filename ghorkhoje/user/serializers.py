@@ -1,5 +1,7 @@
 from django.utils import timezone
 from django.db.models import Q
+from django.db import transaction
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from ghorkhoje.settings import OTP_LENGTH
@@ -201,6 +203,71 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = ["id", "title", "message", "type", "status", "created_at", "is_read"]
+
+
+class UpdateNotificationReadStatusSerializer(serializers.Serializer):
+    notification_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        allow_empty=False,
+        help_text="List of notification IDs to mark as read",
+    )
+
+    def validate_notification_ids(self, value):
+        """
+        Validate that all notification IDs exist and belong to the current user
+        """
+        if not value:
+            raise serializers.ValidationError(
+                "At least one notification ID is required."
+            )
+
+        # Remove duplicates while preserving order
+        unique_ids = list(dict.fromkeys(value))
+
+        # Get the current user from context
+        user = self.context["request"].user
+
+        # Check if all notifications exist and belong to the user
+        existing_notifications = Notification.objects.filter(
+            id__in=unique_ids,
+            user=user,  # Assuming your Notification model has a user field
+        ).values_list("id", flat=True)
+
+        existing_ids = set(existing_notifications)
+        requested_ids = set(unique_ids)
+
+        # Check for non-existent or unauthorized notifications
+        invalid_ids = requested_ids - existing_ids
+        if invalid_ids:
+            raise serializers.ValidationError(
+                f"Invalid notification IDs: {list(invalid_ids)}. "
+                "These notifications either don't exist or don't belong to you."
+            )
+
+        return unique_ids
+
+    def save(self):
+        """
+        Update the is_read status of notifications to True
+        """
+        notification_ids = self.validated_data["notification_ids"]
+        user = self.context["request"].user
+
+        try:
+            with transaction.atomic():
+                # Update notifications to mark them as read
+                updated_count = Notification.objects.filter(
+                    id__in=notification_ids,
+                    user=user,
+                    is_read=False,  # Only update unread notifications
+                ).update(is_read=True)
+
+                return {
+                    "updated_count": updated_count,
+                    "notification_ids": notification_ids,
+                }
+        except Exception as e:
+            raise ValidationError(f"Failed to update notifications: {str(e)}")
 
 
 class ReviewerSerializer(serializers.ModelSerializer):

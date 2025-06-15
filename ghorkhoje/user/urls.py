@@ -34,6 +34,16 @@ user_urlpatterns = [
         ListedPropertiesAPIView.as_view(),
         name="listed_properties",
     ),
+    path(
+        "notifications/mark-read/",
+        UpdateNotificationReadStatusAPIView.as_view(),
+        name="mark-notifications-read",
+    ),
+    path(
+        "notifications/mark-all-read/",
+        MarkAllNotificationsReadAPIView.as_view(),
+        name="mark-all-notifications-read",
+    ),
     path("about-host/<int:pk>/", AboutHostAPIView.as_view(), name="about_host"),
 ]
 

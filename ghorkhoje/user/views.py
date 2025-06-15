@@ -260,6 +260,53 @@ class UserNotificationAPIView(APIView):
             return common_response(400, str(e))
 
 
+class UpdateNotificationReadStatusAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            serializer = UpdateNotificationReadStatusSerializer(
+                data=request.data,
+                context={"request": request},  # Pass request context for user access
+            )
+            serializer.is_valid(raise_exception=True)
+            result = serializer.save()
+
+            return common_response(
+                200,
+                "Notification status updated successfully.",
+                data={
+                    "updated_count": result["updated_count"],
+                    "processed_ids": result["notification_ids"],
+                },
+            )
+        except ValidationError as e:
+            return common_response(400, str(e))
+        except Exception as e:
+            return common_response(500, f"An unexpected error occurred: {str(e)}")
+
+
+class MarkAllNotificationsReadAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            with transaction.atomic():
+                updated_count = Notification.objects.filter(
+                    user=request.user, is_read=False
+                ).update(is_read=True)
+
+                return common_response(
+                    200,
+                    f"All notifications marked as read. Updated {updated_count} notifications.",
+                    data={"updated_count": updated_count},
+                )
+        except Exception as e:
+            return common_response(
+                500, f"Failed to mark all notifications as read: {str(e)}"
+            )
+
+
 class ListedPropertiesAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
