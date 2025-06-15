@@ -25,13 +25,13 @@ class ChatAuthMiddleware:
                     id=decoded_data["user_id"]
                 )
                 scope["user"] = user
-                scope["is_agent"] = user.is_staff or user.is_superuser
+                scope["is_admin"] = user.is_staff or user.is_superuser
             except jwt.ExpiredSignatureError:
                 scope["user"] = None
             except jwt.InvalidTokenError:
                 scope["user"] = None
         else:
             scope["user"] = None
-            scope["is_agent"] = False
+            scope["is_admin"] = False
 
         return await self.app(scope, receive, send)
