@@ -238,7 +238,7 @@ class TaskCategory(TextChoices):
     maintenance = "Maintenance"
     cleaning = "Cleaning"
     guest_relations = "Guest Relations"
-    finantial = "Finantial"
+    financial = "Financial"
     marketing = "Marketing"
     other = "Other"
 
@@ -254,15 +254,17 @@ class Task(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     category = models.CharField(
-        max_length=50, choices=TaskCategory.choices, default="other"
+        max_length=50, choices=TaskCategory.choices, default=TaskCategory.other
     )
     priority = models.CharField(
-        max_length=50, choices=TaskPriority.choices, default="low"
+        max_length=50, choices=TaskPriority.choices, default=TaskPriority.low
     )
     due_date = models.DateField(blank=True, null=True)
     related_property = models.ForeignKey(
         "place.Place", on_delete=models.CASCADE, null=True, blank=True
     )
+
+    is_complete = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

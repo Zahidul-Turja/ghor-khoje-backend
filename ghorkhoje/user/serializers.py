@@ -420,3 +420,18 @@ class AboutHostSerializer(serializers.ModelSerializer):
     def get_hosted_places(self, obj):
         places = obj.owned_places.all()
         return PlaceSerializer(places, many=True, context=self.context).data
+
+
+# Task APIs
+class TaskCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = [
+            "user",
+            "title",
+            "description",
+            "category",
+            "priority",
+            "due_date",
+            "related_property",
+        ]

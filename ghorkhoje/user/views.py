@@ -1,6 +1,4 @@
-import json
 import traceback
-
 
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -18,10 +16,7 @@ from user.helpers import (
 from user.models import *
 from user.serializers import *
 
-from place.models import Place
 from place.serializer import PlaceDetailsSerializer
-
-from utils.services import send_custom_email
 
 
 class Pagination(PageNumberPagination):
@@ -337,5 +332,21 @@ class AboutHostAPIView(APIView):
             return common_response(
                 200, "User profile fetched successfully.", serializer.data
             )
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+# Task APIs
+class TaskCreationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            data = request.data.copy()
+            data["user"] = request.user.id
+            serializer = TaskCreationSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return common_response(200, "Task created successfully.")
         except Exception as e:
             return common_response(400, str(e))
