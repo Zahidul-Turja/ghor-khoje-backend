@@ -435,3 +435,31 @@ class TaskCreationSerializer(serializers.ModelSerializer):
             "due_date",
             "related_property",
         ]
+
+
+class PlaceTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Place
+        fields = ["id", "title"]
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    related_property = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Task
+        fields = [
+            "id",
+            "user",
+            "title",
+            "description",
+            "category",
+            "priority",
+            "due_date",
+            "related_property",
+            "is_complete",
+            "created_at",
+        ]
+
+    def get_related_property(self, obj):
+        return PlaceTitleSerializer(obj.related_property, context=self.context).data
