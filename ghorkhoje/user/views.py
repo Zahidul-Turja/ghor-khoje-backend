@@ -343,12 +343,19 @@ class TaskCreationAPIView(APIView):
     def post(self, request):
         try:
             data = request.data.copy()
+            print(data, "--------------------------------")
             data["user"] = request.user.id
             serializer = TaskCreationSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return common_response(200, "Task created successfully.")
+            return_data = TaskSerializer(
+                serializer.instance, context={"request": request}
+            )
+            return common_response(
+                200, "Task created successfully.", data=return_data.data
+            )
         except Exception as e:
+            traceback.print_exc()
             return common_response(400, str(e))
 
 
@@ -369,7 +376,8 @@ class TaskUpdateAPIView(APIView):
             serializer = TaskSerializer(task, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return common_response(200, "Task updated successfully.")
+            data = TaskSerializer(task, context={"request": request}).data
+            return common_response(200, "Task updated successfully.", data=data)
         except Exception as e:
             traceback.print_exc()
             return common_response(400, str(e))
@@ -423,6 +431,7 @@ class TaskToggleCompletedAPIView(APIView):
 
             task.is_complete = not task.is_complete
             task.save()
+
             return common_response(200, "Task status updated successfully.")
         except Exception as e:
             return common_response(400, str(e))
