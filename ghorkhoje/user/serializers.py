@@ -81,6 +81,11 @@ class EmailSerializer(serializers.Serializer):
     email = serializers.CharField(required=True, max_length=255)
 
 
+class ForgetPasswordSerializer(serializers.Serializer):
+    email = serializers.CharField(required=True, max_length=255)
+    password = serializers.CharField(required=True)
+
+
 class ResetPasswordSerializer(serializers.Serializer):
     email = serializers.CharField(required=True, max_length=255)
     otp = serializers.CharField(required=True, max_length=OTP_LENGTH)

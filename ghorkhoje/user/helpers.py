@@ -127,8 +127,25 @@ def user_login_service(payload, request):
     }
 
 
+def resend_otp_service(payload):
+    email = payload.get("email")
+    user = User.objects.filter(email=email).first()
+
+    if user is None:
+        custom_exception("No user found with this email. Please sign up first.")
+
+    otp = generate_otp()
+    user.otp = otp
+    user.save()
+
+    send_otp_email(user.email, otp)
+    print(f"Resent OTP: {otp}")
+    return True
+
+
 def forget_password_service(payload):
     email = payload.get("email")
+    password = payload.get("password")
     user = User.objects.filter(email=email).first()
 
     if user is None:
@@ -136,6 +153,10 @@ def forget_password_service(payload):
 
     otp = generate_otp()
     user.otp = otp
+    user.set_password(password)
+    user.is_active = False
     user.save()
+
+    send_otp_email(user.email, otp)
 
     return True

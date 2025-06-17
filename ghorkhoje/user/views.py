@@ -96,13 +96,15 @@ class ForgetPasswordAPIView(APIView):
 
     def post(self, request):
         try:
-            serializer = EmailSerializer(data=request.data)
+            print("request.data", request.data)
+            serializer = ForgetPasswordSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             payload = serializer.validated_data
             forget_password_service(payload)
 
             return common_response(200, "OTP sent successfully.")
         except Exception as e:
+            traceback.print_exc()
             return common_response(400, str(e))
 
 
@@ -128,7 +130,7 @@ class ResendOTPAPIView(APIView):
             serializer = EmailSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             payload = serializer.validated_data
-            forget_password_service(payload)
+            resend_otp_service(payload)
 
             return common_response(200, "OTP sent successfully.")
         except Exception as e:
