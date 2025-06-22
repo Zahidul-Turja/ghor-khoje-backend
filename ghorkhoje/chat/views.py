@@ -34,7 +34,9 @@ class AllMessagesAPIView(APIView):
 
     def get(self, request, conversation_id):
         messages = Message.objects.filter(conversation=conversation_id)
-        serializer = MessageSerializer(messages, many=True)
+        serializer = MessageSerializer(
+            messages, many=True, context={"request": request}
+        )
         return Response(
             {
                 "status": "success",
