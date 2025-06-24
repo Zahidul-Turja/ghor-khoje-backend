@@ -8,6 +8,7 @@ from django.db.models import Avg
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db.models import TextChoices
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from cloudinary_storage.storage import MediaCloudinaryStorage
 
@@ -115,7 +116,45 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
 
     def get_average_rating(self):
-        result = self.received_reviews.aggregate(avg_rating=Avg("rating"))
+        result = self.received_reviews.aggregate(avg_rating=Avg("overall"))
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_communication_rating(self):
+        result = self.received_reviews.aggregate(avg_rating=Avg("communication"))
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_cleanliness_rating(self):
+        result = self.received_reviews.aggregate(avg_rating=Avg("cleanliness"))
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_maintenance_rating(self):
+        result = self.received_reviews.aggregate(avg_rating=Avg("maintenance"))
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_privacy_rating(self):
+        result = self.received_reviews.aggregate(avg_rating=Avg("privacy"))
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_financial_transparency_rating(self):
+        result = self.received_reviews.aggregate(
+            avg_rating=Avg("financial_transparency")
+        )
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_attitude_rating(self):
+        result = self.received_reviews.aggregate(avg_rating=Avg("attitude"))
         return (
             round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
         )
@@ -142,7 +181,48 @@ class Review(models.Model):
         null=True,
         blank=True,
     )
-    rating = models.IntegerField(null=True, blank=True)
+    communication = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    cleanliness = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    maintenance = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    privacy = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    financial_transparency = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    attitude = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    overall = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
     review_text = models.TextField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

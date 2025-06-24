@@ -361,6 +361,13 @@ class AboutHostSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()
 
     average_rating = serializers.SerializerMethodField()
+    communication_rating = serializers.SerializerMethodField()
+    cleanliness_rating = serializers.SerializerMethodField()
+    maintenance_rating = serializers.SerializerMethodField()
+    privacy_rating = serializers.SerializerMethodField()
+    financial_transparency_rating = serializers.SerializerMethodField()
+    attitude_rating = serializers.SerializerMethodField()
+
     reviews = serializers.SerializerMethodField()
     hosted_places = serializers.SerializerMethodField()
 
@@ -383,6 +390,12 @@ class AboutHostSerializer(serializers.ModelSerializer):
             "social_links",
             "created_at",
             "average_rating",
+            "communication_rating",
+            "cleanliness_rating",
+            "maintenance_rating",
+            "privacy_rating",
+            "financial_transparency_rating",
+            "attitude_rating",
             "reviews",
             "hosted_places",
         ]
@@ -417,6 +430,27 @@ class AboutHostSerializer(serializers.ModelSerializer):
 
     def get_average_rating(self, obj):
         return obj.get_average_rating()
+
+    def get_communication_rating(self, obj):
+        return obj.get_average_communication_rating()
+
+    def get_cleanliness_rating(self, obj):
+        return obj.get_average_cleanliness_rating()
+
+    def get_maintenance_rating(self, obj):
+        return obj.get_average_maintenance_rating()
+
+    def get_privacy_rating(self, obj):
+        return obj.get_average_privacy_rating()
+
+    def get_financial_transparency_rating(self, obj):
+        return obj.get_average_financial_transparency_rating()
+
+    def get_attitude_rating(self, obj):
+        return obj.get_average_attitude_rating()
+
+    def get_hosted_places(self, obj):
+        return Place.objects.filter(owner=obj).count()
 
     def get_reviews(self, obj):
         reviews = obj.received_reviews.all()

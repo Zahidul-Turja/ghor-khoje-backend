@@ -58,7 +58,13 @@ class ReviewSerializer(serializers.ModelSerializer):
             "id",
             "reviewer",
             "review_text",
-            "rating",
+            "communication",
+            "cleanliness",
+            "maintenance",
+            "privacy",
+            "financial_transparency",
+            "attitude",
+            "overall",
             "review_date",
             "reviewed_days_ago",
         ]
@@ -81,6 +87,12 @@ class ImageSerializer(serializers.ModelSerializer):
 
 class OwnerSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
+    communication_rating = serializers.SerializerMethodField()
+    cleanliness_rating = serializers.SerializerMethodField()
+    maintenance_rating = serializers.SerializerMethodField()
+    privacy_rating = serializers.SerializerMethodField()
+    financial_transparency_rating = serializers.SerializerMethodField()
+    attitude_rating = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
     hosted_places = serializers.SerializerMethodField()
 
@@ -93,12 +105,36 @@ class OwnerSerializer(serializers.ModelSerializer):
             "profession",
             "hosted_places",
             "rating",
+            "communication_rating",
+            "cleanliness_rating",
+            "maintenance_rating",
+            "privacy_rating",
+            "financial_transparency_rating",
+            "attitude_rating",
             "reviews",
             "profile_image",
         ]
 
     def get_rating(self, instance):
         return instance.get_average_rating()
+
+    def get_communication_rating(self, instance):
+        return instance.get_average_communication_rating()
+
+    def get_cleanliness_rating(self, instance):
+        return instance.get_average_cleanliness_rating()
+
+    def get_maintenance_rating(self, instance):
+        return instance.get_average_maintenance_rating()
+
+    def get_privacy_rating(self, instance):
+        return instance.get_average_privacy_rating()
+
+    def get_financial_transparency_rating(self, instance):
+        return instance.get_average_financial_transparency_rating()
+
+    def get_attitude_rating(self, instance):
+        return instance.get_average_attitude_rating()
 
     def get_hosted_places(self, instance):
         return Place.objects.filter(owner=instance).count()
