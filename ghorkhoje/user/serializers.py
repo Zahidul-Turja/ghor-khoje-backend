@@ -9,7 +9,7 @@ from user.models import *
 from utils.responses import custom_exception
 
 from place.models import Place
-from place.serializer import CategorySerializer, ImageSerializer
+from place.serializer import CategorySerializer, ImageSerializer, PlaceDetailsSerializer
 
 
 class UserRegistrationSerializer(serializers.Serializer):
@@ -505,7 +505,9 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
 class BookmarksSerializer(serializers.Serializer):
-    place = serializers.SerializerMethodField()
+    places = serializers.SerializerMethodField()
 
-    def get_place(self, obj):
-        return PlaceTitleSerializer(obj.bookmarks, context=self.context, many=True).data
+    def get_places(self, obj):
+        return PlaceDetailsSerializer(
+            obj.bookmarks, context=self.context, many=True
+        ).data
