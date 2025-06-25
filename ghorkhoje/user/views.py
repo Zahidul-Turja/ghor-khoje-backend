@@ -304,6 +304,24 @@ class MarkAllNotificationsReadAPIView(APIView):
             )
 
 
+class BookmarkListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            bookmarked_places_serializer = BookmarksSerializer(
+                request.user, context={"request": request}
+            )
+
+            return common_response(
+                200,
+                "Bookmarks fetched successfully.",
+                bookmarked_places_serializer.data,
+            )
+        except Exception as e:
+            return common_response(400, str(e))
+
+
 class ListedPropertiesAPIView(APIView):
     permission_classes = [IsAuthenticated]
 

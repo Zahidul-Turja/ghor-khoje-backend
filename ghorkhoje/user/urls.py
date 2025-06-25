@@ -44,6 +44,7 @@ user_urlpatterns = [
         MarkAllNotificationsReadAPIView.as_view(),
         name="mark-all-notifications-read",
     ),
+    path("bookmarks/", BookmarkListAPIView.as_view(), name="bookmark_list"),
     path("tasks/", TaskListAPIView.as_view(), name="task_list"),
     path("tasks/create/", TaskCreationAPIView.as_view(), name="create_task"),
     path("tasks/update/<int:pk>/", TaskUpdateAPIView.as_view(), name="update_task"),

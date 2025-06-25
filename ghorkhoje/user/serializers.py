@@ -502,3 +502,10 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def get_related_property(self, obj):
         return PlaceTitleSerializer(obj.related_property, context=self.context).data
+
+
+class BookmarksSerializer(serializers.Serializer):
+    place = serializers.SerializerMethodField()
+
+    def get_place(self, obj):
+        return PlaceTitleSerializer(obj.bookmarks, context=self.context, many=True).data

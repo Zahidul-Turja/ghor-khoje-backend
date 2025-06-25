@@ -168,6 +168,10 @@ class ToggleBookmarkPlaceAPIView(APIView):
         try:
             place = Place.objects.get(slug=slug)
             user = request.user
+
+            if place.owner == user:
+                return common_response(400, "You cannot bookmark your own place.")
+
             if place in user.bookmarks.all():
                 user.bookmarks.remove(place)
                 return common_response(200, "Place removed from bookmarks.")
