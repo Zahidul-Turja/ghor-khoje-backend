@@ -102,6 +102,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     youtube = models.URLField(null=True, blank=True)
     telegram = models.URLField(null=True, blank=True)
 
+    bookmarks = models.ManyToManyField(
+        "place.Place", related_name="bookmarks", blank=True
+    )
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

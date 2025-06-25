@@ -159,3 +159,22 @@ class PlaceDetailsAPIView(APIView):
             return common_response(404, "Place not found.")
         except Exception as e:
             return common_response(400, str(e))
+
+
+class ToggleBookmarkPlaceAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, slug):
+        try:
+            place = Place.objects.get(slug=slug)
+            user = request.user
+            if place in user.bookmarks.all():
+                user.bookmarks.remove(place)
+                return common_response(200, "Place removed from bookmarks.")
+            else:
+                user.bookmarks.add(place)
+                return common_response(200, "Place added to bookmarks.")
+        except Place.DoesNotExist:
+            return common_response(404, "Place not found.")
+        except Exception as e:
+            return common_response(400, str(e))
