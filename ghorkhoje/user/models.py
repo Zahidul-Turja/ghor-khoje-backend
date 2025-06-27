@@ -233,7 +233,7 @@ class Review(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Review by {self.reviewer} to {self.reviewee} - Rating: {self.rating}"
+        return f"Review by {self.reviewer} to {self.reviewee} - Rating: {self.overall}"
 
 
 class LandlordApplication(models.Model):

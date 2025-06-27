@@ -55,6 +55,13 @@ user_urlpatterns = [
         name="toggle_task_completed",
     ),
     path("about-host/<int:pk>/", AboutHostAPIView.as_view(), name="about_host"),
+    # Reviews
+    path("review-user/<int:pk>/", ReviewUserAPIView.as_view(), name="review-user"),
+    path(
+        "review/update/<int:pk>/",
+        ReviewUserAPIView.as_view(),
+        name="update-review-user",
+    ),
 ]
 
 application_urlpatterns = [

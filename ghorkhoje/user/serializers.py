@@ -511,3 +511,9 @@ class BookmarksSerializer(serializers.Serializer):
         return PlaceDetailsSerializer(
             obj.bookmarks, context=self.context, many=True
         ).data
+
+
+class ReviewUserCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = "__all__"

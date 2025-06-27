@@ -100,7 +100,20 @@ class TaskAdmin(admin.ModelAdmin):
     list_per_page = 40
 
 
+class ReviewUserAdmin(admin.ModelAdmin):
+    list_display = ("id", "reviewer", "reviewee", "overall", "review_text")
+    search_fields = (
+        "user__full_name",
+        "user__email",
+        "reviewee__full_name",
+        "reviewee__email",
+    )
+    ordering = ("-created_at",)
+    list_per_page = 40
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(LandlordApplication, LandlordAdmin)
 admin.site.register(Notification, NotificationAdmin)
 admin.site.register(Task, TaskAdmin)
+admin.site.register(Review, ReviewUserAdmin)

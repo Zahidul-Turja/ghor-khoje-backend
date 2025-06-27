@@ -462,3 +462,52 @@ class TaskToggleCompletedAPIView(APIView):
             return common_response(200, "Task status updated successfully.")
         except Exception as e:
             return common_response(400, str(e))
+
+
+class ReviewUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            data = request.data.copy()
+            reviewer = request.user
+            reviewee = User.objects.filter(id=pk).first()
+            if not reviewee:
+                return common_response(404, "Host not found.")
+            if reviewer == reviewee:
+                return common_response(400, "You cannot review yourself.")
+
+            if Review.objects.filter(reviewer=reviewer, reviewee=reviewee).exists():
+                return common_response(400, "You have already reviewed this host.")
+
+            data["reviewer"] = request.user.id
+            data["reviewee"] = pk
+            serializer = ReviewUserCreateUpdateSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(reviewer=reviewer, reviewee=reviewee)
+            return common_response(
+                200, "Review submitted successfully.", serializer.data
+            )
+        except Exception as e:
+            traceback.print_exc()
+            return common_response(400, str(e))
+
+    def patch(self, request, pk):
+        try:
+            review = Review.objects.filter(id=pk).first()
+            if not review:
+                return common_response(404, "Review not found.")
+
+            if review.reviewer != request.user:
+                return common_response(
+                    403, "You are not authorized to update this review."
+                )
+
+            serializer = ReviewUserCreateUpdateSerializer(
+                review, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return common_response(200, "Review updated successfully.", serializer.data)
+        except Exception as e:
+            return common_response(400, str(e))
