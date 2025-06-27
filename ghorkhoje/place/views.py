@@ -197,3 +197,64 @@ class ToggleBookmarkPlaceAPIView(APIView):
             return common_response(404, "Place not found.")
         except Exception as e:
             return common_response(400, str(e))
+
+
+class PlaceReviewAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, slug):
+        try:
+            place = Place.objects.filter(slug=slug).first()
+            if not place:
+                return common_response(404, "Place not found.")
+
+            if place.owner == request.user:
+                return common_response(400, "You cannot review your own place.")
+
+            if PlaceReview.objects.filter(place=place, reviewer=request.user).exists():
+                return common_response(400, "You have already reviewed this place.")
+
+            data = request.data.copy()
+            data["place"] = place.id
+            data["reviewer"] = request.user.id
+            serializer = PlaceReviewCreateUpdateSerializer(data=data)
+            if serializer.is_valid():
+                review = serializer.save()
+                return common_response(
+                    201,
+                    "Review created successfully.",
+                    PlaceReviewCreateUpdateSerializer(review).data,
+                )
+            else:
+                return common_response(400, "Invalid data.", serializer.errors)
+        except Exception as e:
+            traceback.print_exc()
+            return common_response(400, str(e))
+
+    def patch(self, request, slug):
+        try:
+            place = Place.objects.filter(slug=slug).first()
+            if not place:
+                return common_response(404, "Place not found.")
+
+            review = PlaceReview.objects.filter(
+                place=place, reviewer=request.user
+            ).first()
+            if not review:
+                return common_response(404, "Review not found.")
+
+            serializer = PlaceReviewCreateUpdateSerializer(
+                review, data=request.data, partial=True
+            )
+            if serializer.is_valid():
+                review = serializer.save()
+                return common_response(
+                    200,
+                    "Review updated successfully.",
+                    PlaceReviewCreateUpdateSerializer(review).data,
+                )
+            else:
+                return common_response(400, "Invalid data.", serializer.errors)
+        except Exception as e:
+            traceback.print_exc()
+            return common_response(400, str(e))

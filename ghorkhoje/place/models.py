@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import FileExtensionValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 
@@ -44,9 +44,6 @@ class Category(models.Model):
     class Meta:
         db_table = "categories"
         verbose_name_plural = "Categories"
-
-
-# Auto-generate slug only if
 
 
 class Facility(models.Model):
@@ -188,3 +185,45 @@ class Image(TimestampedModel):
 
     def __str__(self):
         return f"Image for Place ID {self.place.id}"
+
+
+class PlaceReview(TimestampedModel):
+    place = models.ForeignKey(Place, related_name="reviews", on_delete=models.CASCADE)
+    reviewer = models.ForeignKey(
+        User, related_name="place_reviews", on_delete=models.CASCADE
+    )
+    overall = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=5
+    )
+    cleanliness = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=5
+    )
+    description_match = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=5
+    )
+    location_convenience = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=5
+    )
+    value_for_money = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=5
+    )
+    neiborhood = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=5
+    )
+    review_text = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Review for Place ID {self.place.id}"
+
+    class Meta:
+        db_table = "place_reviews"
+        verbose_name_plural = "Place Reviews"
+
+    def save(self, *args, **kwargs):
+        self.overall = (
+            self.cleanliness
+            + self.description_match
+            + self.location_convenience
+            + self.value_for_money
+        ) // 4
+        super().save(*args, **kwargs)

@@ -1,8 +1,6 @@
 from django.contrib import admin
 
-from place.models import Place, Category, Facility, Image
-
-# Register your models here.
+from place.models import *
 
 
 class ImageAdmin(admin.TabularInline):
@@ -13,7 +11,7 @@ class ImageAdmin(admin.TabularInline):
 class PlaceAdmin(admin.ModelAdmin):
     inlines = [ImageAdmin]
     list_display = ("id", "title", "owner", "city", "category", "created_at")
-    list_filter = ("city", "category", "created_at")
+    list_filter = ("category", "created_at")
     search_fields = ("title", "owner__username", "city")
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "updated_at", "slug")
@@ -32,5 +30,13 @@ class FacilityAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
 
+class PlaceReviewAdmin(admin.ModelAdmin):
+    list_display = ("id", "place", "reviewer", "overall", "created_at")
+    list_filter = ("place", "reviewer", "created_at")
+    search_fields = ("place__title", "reviewer__username")
+    ordering = ("-created_at",)
+
+
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Image)
+admin.site.register(PlaceReview, PlaceReviewAdmin)

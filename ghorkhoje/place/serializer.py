@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
-from place.models import Place, Facility, Category, Image
+from place.models import Place, Facility, Category, Image, PlaceReview
 from user.models import User, Review
 
 
@@ -144,12 +144,27 @@ class OwnerSerializer(serializers.ModelSerializer):
         return ReviewSerializer(reviews, many=True).data
 
 
+class PlaceReviewCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlaceReview
+        fields = "__all__"
+
+
+class PlaceReviewSerializer(serializers.ModelSerializer):
+    reviewer = ReviewerSerializer()
+
+    class Meta:
+        model = PlaceReview
+        fields = "__all__"
+
+
 class PlaceDetailsSerializer(serializers.ModelSerializer):
     owner = OwnerSerializer(read_only=True)
     total_per_month = serializers.SerializerMethodField()
     facilities = FacilitySerializer(many=True, required=False)
     category = CategorySerializer(read_only=True)
     images = ImageSerializer(many=True, required=False)
+    reviews = serializers.SerializerMethodField()
 
     class Meta:
         model = Place
@@ -193,7 +208,12 @@ class PlaceDetailsSerializer(serializers.ModelSerializer):
             "is_available",
             "featured",
             "is_active",
+            "reviews",
         ]
+
+    def get_reviews(self, instance):
+        reviews = instance.reviews.all()
+        return PlaceReviewSerializer(reviews, many=True).data
 
     def get_total_per_month(self, instance):
         if instance.extra_bills is None:

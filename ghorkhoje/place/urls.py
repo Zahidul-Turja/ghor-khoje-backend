@@ -18,4 +18,10 @@ place_urlpatterns = [
         ToggleBookmarkPlaceAPIView.as_view(),
         name="bookmark_place",
     ),
+    path("review/<str:slug>/", PlaceReviewAPIView.as_view(), name="place_review"),
+    path(
+        "review/update/<str:slug>/",
+        PlaceReviewAPIView.as_view(),
+        name="place_review_update",
+    ),
 ]
