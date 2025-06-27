@@ -4,6 +4,7 @@ from random import randint
 
 
 def get_random_quote(request):
+    return JsonResponse({"status": "success", "message": "Welcome to GhorKhojee API"})
     quote_number = randint(1, 1400)
     url = f"https://dummyjson.com/quotes/{quote_number}"
 

@@ -7,6 +7,8 @@ from django.contrib.auth.models import (
 from django.db.models import Avg
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.db.models import TextChoices
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from cloudinary_storage.storage import MediaCloudinaryStorage
 
@@ -100,6 +102,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     youtube = models.URLField(null=True, blank=True)
     telegram = models.URLField(null=True, blank=True)
 
+    bookmarks = models.ManyToManyField(
+        "place.Place", related_name="bookmarks", blank=True
+    )
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -114,7 +120,45 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
 
     def get_average_rating(self):
-        result = self.received_reviews.aggregate(avg_rating=Avg("rating"))
+        result = self.received_reviews.aggregate(avg_rating=Avg("overall"))
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_communication_rating(self):
+        result = self.received_reviews.aggregate(avg_rating=Avg("communication"))
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_cleanliness_rating(self):
+        result = self.received_reviews.aggregate(avg_rating=Avg("cleanliness"))
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_maintenance_rating(self):
+        result = self.received_reviews.aggregate(avg_rating=Avg("maintenance"))
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_privacy_rating(self):
+        result = self.received_reviews.aggregate(avg_rating=Avg("privacy"))
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_financial_transparency_rating(self):
+        result = self.received_reviews.aggregate(
+            avg_rating=Avg("financial_transparency")
+        )
+        return (
+            round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
+        )
+
+    def get_average_attitude_rating(self):
+        result = self.received_reviews.aggregate(avg_rating=Avg("attitude"))
         return (
             round(result["avg_rating"], 2) if result["avg_rating"] is not None else None
         )
@@ -141,7 +185,48 @@ class Review(models.Model):
         null=True,
         blank=True,
     )
-    rating = models.IntegerField(null=True, blank=True)
+    communication = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    cleanliness = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    maintenance = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    privacy = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    financial_transparency = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    attitude = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
+    overall = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5,
+    )
     review_text = models.TextField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -230,3 +315,48 @@ class Notification(models.Model):
         ordering = ["-created_at"]
         verbose_name = "Notification"
         verbose_name_plural = "Notifications"
+
+
+# Tasks
+class TaskCategory(TextChoices):
+    maintenance = "Maintenance"
+    cleaning = "Cleaning"
+    guest_relations = "Guest Relations"
+    financial = "Financial"
+    marketing = "Marketing"
+    other = "Other"
+
+
+class TaskPriority(TextChoices):
+    high = "High"
+    medium = "Medium"
+    low = "Low"
+
+
+class Task(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    category = models.CharField(
+        max_length=50, choices=TaskCategory.choices, default=TaskCategory.other
+    )
+    priority = models.CharField(
+        max_length=50, choices=TaskPriority.choices, default=TaskPriority.low
+    )
+    due_date = models.DateField(blank=True, null=True)
+    related_property = models.ForeignKey(
+        "place.Place", on_delete=models.CASCADE, null=True, blank=True
+    )
+
+    is_complete = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Task for {self.user} - {self.title}"
+
+    class Meta:
+        verbose_name = "Task"
+        verbose_name_plural = "Tasks"
+        db_table = "tasks"

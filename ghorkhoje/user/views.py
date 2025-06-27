@@ -1,6 +1,4 @@
-import json
 import traceback
-
 
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -18,10 +16,7 @@ from user.helpers import (
 from user.models import *
 from user.serializers import *
 
-from place.models import Place
 from place.serializer import PlaceDetailsSerializer
-
-from utils.services import send_custom_email
 
 
 class Pagination(PageNumberPagination):
@@ -101,13 +96,15 @@ class ForgetPasswordAPIView(APIView):
 
     def post(self, request):
         try:
-            serializer = EmailSerializer(data=request.data)
+            print("request.data", request.data)
+            serializer = ForgetPasswordSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             payload = serializer.validated_data
             forget_password_service(payload)
 
             return common_response(200, "OTP sent successfully.")
         except Exception as e:
+            traceback.print_exc()
             return common_response(400, str(e))
 
 
@@ -133,7 +130,7 @@ class ResendOTPAPIView(APIView):
             serializer = EmailSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             payload = serializer.validated_data
-            forget_password_service(payload)
+            resend_otp_service(payload)
 
             return common_response(200, "OTP sent successfully.")
         except Exception as e:
@@ -267,6 +264,71 @@ class UserNotificationAPIView(APIView):
             return common_response(400, str(e))
 
 
+class UpdateNotificationReadStatusAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            serializer = UpdateNotificationReadStatusSerializer(
+                data=request.data,
+                context={"request": request},  # Pass request context for user access
+            )
+            serializer.is_valid(raise_exception=True)
+            result = serializer.save()
+
+            return common_response(
+                200,
+                "Notification status updated successfully.",
+                data={
+                    "updated_count": result["updated_count"],
+                    "processed_ids": result["notification_ids"],
+                },
+            )
+        except ValidationError as e:
+            return common_response(400, str(e))
+        except Exception as e:
+            return common_response(500, f"An unexpected error occurred: {str(e)}")
+
+
+class MarkAllNotificationsReadAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            with transaction.atomic():
+                updated_count = Notification.objects.filter(
+                    user=request.user, is_read=False
+                ).update(is_read=True)
+
+                return common_response(
+                    200,
+                    f"All notifications marked as read. Updated {updated_count} notifications.",
+                    data={"updated_count": updated_count},
+                )
+        except Exception as e:
+            return common_response(
+                500, f"Failed to mark all notifications as read: {str(e)}"
+            )
+
+
+class BookmarkListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            bookmarked_places_serializer = BookmarksSerializer(
+                request.user, context={"request": request}
+            )
+
+            return common_response(
+                200,
+                "Bookmarks fetched successfully.",
+                bookmarked_places_serializer.data,
+            )
+        except Exception as e:
+            return common_response(400, str(e))
+
+
 class ListedPropertiesAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -297,5 +359,106 @@ class AboutHostAPIView(APIView):
             return common_response(
                 200, "User profile fetched successfully.", serializer.data
             )
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+# Task APIs
+class TaskCreationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            data = request.data.copy()
+            print(data, "--------------------------------")
+            data["user"] = request.user.id
+            serializer = TaskCreationSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return_data = TaskSerializer(
+                serializer.instance, context={"request": request}
+            )
+            return common_response(
+                200, "Task created successfully.", data=return_data.data
+            )
+        except Exception as e:
+            traceback.print_exc()
+            return common_response(400, str(e))
+
+
+class TaskUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            task = Task.objects.filter(id=pk).first()
+            if not task:
+                return common_response(404, "Task not found.")
+
+            if task.user != request.user:
+                return common_response(
+                    403, "You are not authorized to update this task."
+                )
+
+            serializer = TaskSerializer(task, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            data = TaskSerializer(task, context={"request": request}).data
+            return common_response(200, "Task updated successfully.", data=data)
+        except Exception as e:
+            traceback.print_exc()
+            return common_response(400, str(e))
+
+
+class TaskDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        try:
+            task = Task.objects.filter(id=pk).first()
+            if not task:
+                return common_response(404, "Task not found.")
+
+            if task.user != request.user:
+                return common_response(
+                    403, "You are not authorized to delete this task."
+                )
+
+            task.delete()
+            return common_response(200, "Task deleted successfully.")
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+class TaskListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            tasks = Task.objects.filter(user=request.user).order_by("-created_at")
+            serializer = TaskSerializer(tasks, many=True, context={"request": request})
+            return common_response(200, "Tasks fetched successfully.", serializer.data)
+        except Exception as e:
+            return common_response(400, str(e))
+
+
+class TaskToggleCompletedAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            task = Task.objects.filter(id=pk).first()
+            if not task:
+                return common_response(404, "Task not found.")
+
+            if task.user != request.user:
+                return common_response(
+                    403, "You are not authorized to update this task."
+                )
+
+            task.is_complete = not task.is_complete
+            task.save()
+
+            return common_response(200, "Task status updated successfully.")
         except Exception as e:
             return common_response(400, str(e))

@@ -1,5 +1,7 @@
 from django.utils import timezone
 from django.db.models import Q
+from django.db import transaction
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from ghorkhoje.settings import OTP_LENGTH
@@ -7,7 +9,7 @@ from user.models import *
 from utils.responses import custom_exception
 
 from place.models import Place
-from place.serializer import CategorySerializer, ImageSerializer
+from place.serializer import CategorySerializer, ImageSerializer, PlaceDetailsSerializer
 
 
 class UserRegistrationSerializer(serializers.Serializer):
@@ -77,6 +79,11 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class EmailSerializer(serializers.Serializer):
     email = serializers.CharField(required=True, max_length=255)
+
+
+class ForgetPasswordSerializer(serializers.Serializer):
+    email = serializers.CharField(required=True, max_length=255)
+    password = serializers.CharField(required=True)
 
 
 class ResetPasswordSerializer(serializers.Serializer):
@@ -203,6 +210,71 @@ class NotificationSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "message", "type", "status", "created_at", "is_read"]
 
 
+class UpdateNotificationReadStatusSerializer(serializers.Serializer):
+    notification_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        allow_empty=False,
+        help_text="List of notification IDs to mark as read",
+    )
+
+    def validate_notification_ids(self, value):
+        """
+        Validate that all notification IDs exist and belong to the current user
+        """
+        if not value:
+            raise serializers.ValidationError(
+                "At least one notification ID is required."
+            )
+
+        # Remove duplicates while preserving order
+        unique_ids = list(dict.fromkeys(value))
+
+        # Get the current user from context
+        user = self.context["request"].user
+
+        # Check if all notifications exist and belong to the user
+        existing_notifications = Notification.objects.filter(
+            id__in=unique_ids,
+            user=user,  # Assuming your Notification model has a user field
+        ).values_list("id", flat=True)
+
+        existing_ids = set(existing_notifications)
+        requested_ids = set(unique_ids)
+
+        # Check for non-existent or unauthorized notifications
+        invalid_ids = requested_ids - existing_ids
+        if invalid_ids:
+            raise serializers.ValidationError(
+                f"Invalid notification IDs: {list(invalid_ids)}. "
+                "These notifications either don't exist or don't belong to you."
+            )
+
+        return unique_ids
+
+    def save(self):
+        """
+        Update the is_read status of notifications to True
+        """
+        notification_ids = self.validated_data["notification_ids"]
+        user = self.context["request"].user
+
+        try:
+            with transaction.atomic():
+                # Update notifications to mark them as read
+                updated_count = Notification.objects.filter(
+                    id__in=notification_ids,
+                    user=user,
+                    is_read=False,  # Only update unread notifications
+                ).update(is_read=True)
+
+                return {
+                    "updated_count": updated_count,
+                    "notification_ids": notification_ids,
+                }
+        except Exception as e:
+            raise ValidationError(f"Failed to update notifications: {str(e)}")
+
+
 class ReviewerSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()
 
@@ -289,6 +361,13 @@ class AboutHostSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()
 
     average_rating = serializers.SerializerMethodField()
+    communication_rating = serializers.SerializerMethodField()
+    cleanliness_rating = serializers.SerializerMethodField()
+    maintenance_rating = serializers.SerializerMethodField()
+    privacy_rating = serializers.SerializerMethodField()
+    financial_transparency_rating = serializers.SerializerMethodField()
+    attitude_rating = serializers.SerializerMethodField()
+
     reviews = serializers.SerializerMethodField()
     hosted_places = serializers.SerializerMethodField()
 
@@ -311,6 +390,12 @@ class AboutHostSerializer(serializers.ModelSerializer):
             "social_links",
             "created_at",
             "average_rating",
+            "communication_rating",
+            "cleanliness_rating",
+            "maintenance_rating",
+            "privacy_rating",
+            "financial_transparency_rating",
+            "attitude_rating",
             "reviews",
             "hosted_places",
         ]
@@ -346,6 +431,27 @@ class AboutHostSerializer(serializers.ModelSerializer):
     def get_average_rating(self, obj):
         return obj.get_average_rating()
 
+    def get_communication_rating(self, obj):
+        return obj.get_average_communication_rating()
+
+    def get_cleanliness_rating(self, obj):
+        return obj.get_average_cleanliness_rating()
+
+    def get_maintenance_rating(self, obj):
+        return obj.get_average_maintenance_rating()
+
+    def get_privacy_rating(self, obj):
+        return obj.get_average_privacy_rating()
+
+    def get_financial_transparency_rating(self, obj):
+        return obj.get_average_financial_transparency_rating()
+
+    def get_attitude_rating(self, obj):
+        return obj.get_average_attitude_rating()
+
+    def get_hosted_places(self, obj):
+        return Place.objects.filter(owner=obj).count()
+
     def get_reviews(self, obj):
         reviews = obj.received_reviews.all()
         return ReviewSerializer(reviews, many=True, context=self.context).data
@@ -353,3 +459,55 @@ class AboutHostSerializer(serializers.ModelSerializer):
     def get_hosted_places(self, obj):
         places = obj.owned_places.all()
         return PlaceSerializer(places, many=True, context=self.context).data
+
+
+# Task APIs
+class TaskCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = [
+            "user",
+            "title",
+            "description",
+            "category",
+            "priority",
+            "due_date",
+            "related_property",
+        ]
+
+
+class PlaceTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Place
+        fields = ["id", "title"]
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    related_property = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Task
+        fields = [
+            "id",
+            "user",
+            "title",
+            "description",
+            "category",
+            "priority",
+            "due_date",
+            "related_property",
+            "is_complete",
+            "created_at",
+        ]
+
+    def get_related_property(self, obj):
+        return PlaceTitleSerializer(obj.related_property, context=self.context).data
+
+
+class BookmarksSerializer(serializers.Serializer):
+    places = serializers.SerializerMethodField()
+
+    def get_places(self, obj):
+        return PlaceDetailsSerializer(
+            obj.bookmarks, context=self.context, many=True
+        ).data

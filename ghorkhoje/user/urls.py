@@ -34,6 +34,26 @@ user_urlpatterns = [
         ListedPropertiesAPIView.as_view(),
         name="listed_properties",
     ),
+    path(
+        "notifications/mark-read/",
+        UpdateNotificationReadStatusAPIView.as_view(),
+        name="mark-notifications-read",
+    ),
+    path(
+        "notifications/mark-all-read/",
+        MarkAllNotificationsReadAPIView.as_view(),
+        name="mark-all-notifications-read",
+    ),
+    path("bookmarks/", BookmarkListAPIView.as_view(), name="bookmark_list"),
+    path("tasks/", TaskListAPIView.as_view(), name="task_list"),
+    path("tasks/create/", TaskCreationAPIView.as_view(), name="create_task"),
+    path("tasks/update/<int:pk>/", TaskUpdateAPIView.as_view(), name="update_task"),
+    path("tasks/delete/<int:pk>/", TaskDeleteAPIView.as_view(), name="delete_task"),
+    path(
+        "tasks/toggle-completed/<int:pk>/",
+        TaskToggleCompletedAPIView.as_view(),
+        name="toggle_task_completed",
+    ),
     path("about-host/<int:pk>/", AboutHostAPIView.as_view(), name="about_host"),
 ]
 

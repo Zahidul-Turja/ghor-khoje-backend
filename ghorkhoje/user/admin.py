@@ -79,7 +79,22 @@ class LandlordAdmin(admin.ModelAdmin):
 
 
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "message", "is_read", "created_at")
+    list_display = ("id", "user", "message", "type", "status", "is_read", "created_at")
+    search_fields = ("user__full_name", "user__email")
+    ordering = ("-created_at",)
+    list_per_page = 40
+
+
+class TaskAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "title",
+        "description",
+        "category",
+        "priority",
+        "due_date",
+    )
     search_fields = ("user__full_name", "user__email")
     ordering = ("-created_at",)
     list_per_page = 40
@@ -88,3 +103,4 @@ class NotificationAdmin(admin.ModelAdmin):
 admin.site.register(User, UserAdmin)
 admin.site.register(LandlordApplication, LandlordAdmin)
 admin.site.register(Notification, NotificationAdmin)
+admin.site.register(Task, TaskAdmin)

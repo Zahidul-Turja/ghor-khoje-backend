@@ -13,4 +13,9 @@ place_urlpatterns = [
         name="featured_place_list",
     ),
     path("<str:slug>/", PlaceDetailsAPIView.as_view(), name="place_detail"),
+    path(
+        "toggle-bookmark/<str:slug>/",
+        ToggleBookmarkPlaceAPIView.as_view(),
+        name="bookmark_place",
+    ),
 ]

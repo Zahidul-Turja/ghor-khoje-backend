@@ -8,6 +8,7 @@ from user.urls import auth_urlpatterns, user_urlpatterns, application_urlpattern
 from place.urls import place_urlpatterns
 from booking.urls import booking_urlpatterns
 from feedback.urls import feedback_urlpatterns
+from chat.urls import chat_urlpatterns
 
 api_v1_urls = [
     path("auth/", include(auth_urlpatterns), name="auth_urls"),
@@ -16,6 +17,7 @@ api_v1_urls = [
     path("places/", include(place_urlpatterns), name="place_urls"),
     path("bookings/", include(booking_urlpatterns), name="booking_urls"),
     path("feedback/", include(feedback_urlpatterns), name="feedback_urls"),
+    path("chat/", include(chat_urlpatterns), name="chat_urls"),
 ]
 
 urlpatterns = [

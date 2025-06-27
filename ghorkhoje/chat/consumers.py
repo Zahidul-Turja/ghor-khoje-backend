@@ -2,120 +2,152 @@ import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
+from django.db.models import Q
+
+from chat.models import Conversation, Message
+from user.models import User
+
 # from chat_app.services import *
 
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
-        print("Connecting to chat consumer...")
-        print("Scope:", self.scope)
-        # if "user" in self.scope and "api_key" not in self.scope:
-        #     # Company Support Agent (Admin)
-        #     user = self.scope["user"]
-        #     # agent = Agent.objects.filter(user=user).first()
-        #     # self.room_name = f"admin_room_{agent.company.pk}"
-        #     self.room_group_name = f"chat_{self.room_name}"
+        # Check if user is authenticated
+        print(self.scope)
+        if not self.scope["user"]:
+            self.close()
+            return
 
-        # elif "company" in self.scope and "user_info" in self.scope:
-        #     # Customer (Authenticated via API Key)
-        #     company = self.scope["company"]
-        #     user_info = self.scope["user_info"]
+        self.user = self.scope["user"]
+        self.is_admin = self.scope.get("is_admin", False)
 
-        #     # Create a room specific to this company's customer
-        #     self.room_name = f"company_{company.pk}_user_{user_info['user_id']}"
-
-        #     # Store user_info for later use
-        #     self.customer_info = user_info
-
-        # else:
-        #     self.close()
-        #     return
-
-        # self.room_group_name = f"chat_{self.room_name}"
-
-        # print("group name", self.room_group_name)
-        # print(f"Connecting to room: {self.room_name}")
-
-        # # Join the room group
-        # async_to_sync(self.channel_layer.group_add)(
-        #     self.room_group_name, self.channel_name
-        # )
-
+        # Accept the connection
         self.accept()
 
-    def disconnect(self, close_code):
-        # Leave room group
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name, self.channel_name
+        # Join user to their personal room for notifications
+        self.personal_room = f"user_{self.user.id}"
+        async_to_sync(self.channel_layer.group_add)(
+            self.personal_room, self.channel_name
         )
-        print(f"{self.scope['user']} got disconnected.")
 
-    # Receive message from WebSocket
+        # Join admin room if user is admin for customer support
+        if self.is_admin:
+            self.admin_room = "admin_support"
+            async_to_sync(self.channel_layer.group_add)(
+                self.admin_room, self.channel_name
+            )
+
+        print(f"User {self.user} connected")
+
+    def disconnect(self, close_code):
+        # Leave personal room
+        async_to_sync(self.channel_layer.group_discard)(
+            self.personal_room, self.channel_name
+        )
+
+        # Leave admin room if admin
+        if self.is_admin:
+            async_to_sync(self.channel_layer.group_discard)(
+                self.admin_room, self.channel_name
+            )
+
+        print(f"User {self.user} disconnected")
+
     def receive(self, text_data):
+        data = json.loads(text_data)
 
-        text_data_json = json.loads(text_data)
-        text_data_json["is_agent"] = self.scope.get("is_agent", False)
-        print("Scope:", self.scope)
-        if text_data_json["is_agent"]:
-            user = self.scope.get("user", None)
-            # agent = Agent.objects.filter(user=user).first()
-            # text_data_json["company_id"] = agent.company.pk
-        else:
-            text_data_json["company_id"] = self.scope.get("company", {}).pk
-        print(text_data_json["is_agent"])
-        if text_data_json["is_agent"]:
-            text_data_json["agent"] = self.scope["user"]
-            text_data_json["is_agent"] = True
+        # Either conversation_id or receiver_id must be provided
+        conversation_id = data.get("conversation_id")
+        receiver_id = data.get("receiver_id")  # For new conversations
+        message_text = data.get("message")
+        is_to_admin = data.get("to_admin", False)
 
-        print(f"Received message: {text_data_json} from {self.scope['user']}")
+        conversation = None
 
-        # Process the incoming message
-        # data = create_message(**text_data_json)
+        try:
+            # Check if conversation_id is provided
+            if conversation_id:
+                # Check for existing user_to_user conversation in both directions
+                receiver = User.objects.get(id=receiver_id)
+                conversation = Conversation.objects.filter(id=conversation_id).first()
 
-        # data = ConversationMessageSerializer(data).data
-        data = {}
-
-        if text_data_json.get("is_agent", False):
-            user_details = text_data_json.get("userdetails", None)
-            user_details = self.scope.get("user_info", None)
-            user_id = user_details.get("user_id", "")
-            user_room_name = (
-                f"chat_company_{text_data_json.get('company_id', '')}_user_{user_id}"
-            )
-
-            async_to_sync(self.channel_layer.group_send)(
-                user_room_name,
-                {"type": "chat_message", "response": data},
-            )
-
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name,
-                {"type": "chat_message", "response": data},
-            )
-            print(f"Agent message sent to {user_room_name}")
-            print(f"Admin message sent to group {self.room_group_name}")
-        else:
-            # Customer is sending a message
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name,
-                {"type": "chat_message", "response": data},
-            )
-
-            # Ensure correct admin room name
-            if "user" in self.scope:  # Check if agent is logged in
-                admin_room_name = (
-                    f"chat_admin_room_{text_data_json.get('company_id', '')}"
-                )
+            # Otherwise, create or find conversation
             else:
-                admin_room_name = (
-                    f"chat_admin_room_{text_data_json.get('company_id', '')}"
-                )
-            print(f"Admin room name: {admin_room_name}")
-            print(f"Customer message sent to {admin_room_name}")
-            async_to_sync(self.channel_layer.group_send)(
-                admin_room_name,
-                {"type": "chat_message", "response": data},
+                receiver = User.objects.get(id=receiver_id)
+
+                if is_to_admin:
+                    conversation = (
+                        Conversation.objects.filter(conversation_type="user_to_user")
+                        .filter(
+                            Q(user=self.user, other_user=receiver)
+                            | Q(user=receiver, other_user=self.user)
+                        )
+                        .first()
+                    )
+
+                    # Create if not exists
+                    if not conversation:
+                        conversation = Conversation.objects.create(
+                            user=self.user,
+                            other_user=receiver,
+                            conversation_type="user_to_user",
+                        )
+                else:
+                    conversation = (
+                        Conversation.objects.filter(conversation_type="user_to_user")
+                        .filter(
+                            Q(user=self.user, other_user=receiver)
+                            | Q(user=receiver, other_user=self.user)
+                        )
+                        .first()
+                    )
+
+                    # Create if not exists
+                    if not conversation:
+                        conversation = Conversation.objects.create(
+                            user=self.user,
+                            other_user=receiver,
+                            conversation_type="user_to_user",
+                        )
+
+            # Permission check
+            if not conversation.can_user_access(self.user):
+                self.send(json.dumps({"error": "Access denied."}))
+                return
+
+            # Save message
+            message = Message.objects.create(
+                conversation=conversation,
+                sender=self.user,
+                content=message_text,
             )
+
+            response = {
+                "conversation_id": conversation.id,
+                "sender": self.user.full_name,
+                "sender_id": self.user.id,
+                "message": message_text,
+                "timestamp": str(message.created_at),
+            }
+
+            group_name = f"conversation_{conversation.id}"
+
+            # Add sender to group if not already added
+            async_to_sync(self.channel_layer.group_add)(group_name, self.channel_name)
+
+            # Send message to group
+            async_to_sync(self.channel_layer.group_send)(
+                group_name,
+                {
+                    "type": "chat_message",
+                    "response": response,
+                },
+            )
+
+        except User.DoesNotExist:
+            self.send(json.dumps({"error": "Receiver user not found."}))
+        except Conversation.DoesNotExist:
+            self.send(json.dumps({"error": "Conversation not found."}))
 
     # Receive message from room group
     def chat_message(self, event):
