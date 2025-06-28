@@ -45,6 +45,11 @@ user_urlpatterns = [
         name="mark-all-notifications-read",
     ),
     path("bookmarks/", BookmarkListAPIView.as_view(), name="bookmark_list"),
+    path(
+        "ids-bookmarked-places/",
+        IdsBookmarkedPlacesAPIView.as_view(),
+        name="ids_bookmarked_places",
+    ),
     path("tasks/", TaskListAPIView.as_view(), name="task_list"),
     path("tasks/create/", TaskCreationAPIView.as_view(), name="create_task"),
     path("tasks/update/<int:pk>/", TaskUpdateAPIView.as_view(), name="update_task"),
