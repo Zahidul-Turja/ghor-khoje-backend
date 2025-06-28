@@ -59,6 +59,7 @@ user_urlpatterns = [
         TaskToggleCompletedAPIView.as_view(),
         name="toggle_task_completed",
     ),
+    path("analytics/", UserAnalyticsAPIView.as_view(), name="user_analytics"),
     path("about-host/<int:pk>/", AboutHostAPIView.as_view(), name="about_host"),
     # Reviews
     path("review-user/<int:pk>/", ReviewUserAPIView.as_view(), name="review-user"),
