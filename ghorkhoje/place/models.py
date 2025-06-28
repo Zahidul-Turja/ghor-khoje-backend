@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
@@ -159,6 +160,54 @@ class Place(TimestampedModel):
 
         super().save(*args, **kwargs)
 
+    def get_average_cleanliness_rating(self):
+        return (
+            PlaceReview.objects.filter(place=self, cleanliness__isnull=False).aggregate(
+                Avg("cleanliness")
+            )["cleanliness__avg"]
+            or 0
+        )
+
+    def get_avarage_description_match_rating(self):
+        return (
+            PlaceReview.objects.filter(
+                place=self, description_match__isnull=False
+            ).aggregate(Avg("description_match"))["description_match__avg"]
+            or 0
+        )
+
+    def get_average_location_convenience_rating(self):
+        return (
+            PlaceReview.objects.filter(
+                place=self, location_convenience__isnull=False
+            ).aggregate(Avg("location_convenience"))["location_convenience__avg"]
+            or 0
+        )
+
+    def get_average_value_for_money_rating(self):
+        return (
+            PlaceReview.objects.filter(
+                place=self, value_for_money__isnull=False
+            ).aggregate(Avg("value_for_money"))["value_for_money__avg"]
+            or 0
+        )
+
+    def get_average_neighborhood_rating(self):
+        return (
+            PlaceReview.objects.filter(
+                place=self, neighborhood__isnull=False
+            ).aggregate(Avg("neighborhood"))["neighborhood__avg"]
+            or 0
+        )
+
+    def get_average_overall(self):
+        return (
+            PlaceReview.objects.filter(place=self, overall__isnull=False).aggregate(
+                Avg("overall")
+            )["overall__avg"]
+            or 0
+        )
+
     class Meta:
         indexes = [
             models.Index(fields=["latitude", "longitude"]),
@@ -207,7 +256,7 @@ class PlaceReview(TimestampedModel):
     value_for_money = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)], default=5
     )
-    neiborhood = models.PositiveSmallIntegerField(
+    neighborhood = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)], default=5
     )
     review_text = models.TextField(null=True, blank=True)

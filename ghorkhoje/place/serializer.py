@@ -165,6 +165,7 @@ class PlaceDetailsSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     images = ImageSerializer(many=True, required=False)
     reviews = serializers.SerializerMethodField()
+    avg_ratings = serializers.SerializerMethodField()
 
     class Meta:
         model = Place
@@ -209,7 +210,19 @@ class PlaceDetailsSerializer(serializers.ModelSerializer):
             "featured",
             "is_active",
             "reviews",
+            "avg_ratings",
         ]
+
+    def get_avg_ratings(self, instance):
+        res = {
+            "cleanliness": instance.get_average_cleanliness_rating(),
+            "description_match": instance.get_avarage_description_match_rating(),
+            "location_convenience": instance.get_average_location_convenience_rating(),
+            "value_for_money": instance.get_average_value_for_money_rating(),
+            "neighborhood": instance.get_average_neighborhood_rating(),
+            "overall": instance.get_average_overall(),
+        }
+        return res
 
     def get_reviews(self, instance):
         reviews = instance.reviews.all()
