@@ -254,6 +254,8 @@ def get_stats(request):
         place__owner=request.user, created_at__lt=first_day_this_month
     ).count()
 
+    rating_change = (avg_prev or 0) - (avg_overall or 0)
+
     stats = [
         {
             "title": "Total Revenue",
@@ -272,7 +274,7 @@ def get_stats(request):
         {
             "title": "Avg Rating",
             "value": round(avg_overall or 0, 2),
-            "change": avg_prev - avg_overall,
+            "change": rating_change,
             "icon": "Star",
             "color": review_color,
         },
