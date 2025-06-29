@@ -468,7 +468,9 @@ def top_listings_data(request):
                 months = 1  # Ensure at least 1 month of revenue
             total_revenue += float(b.rent_per_month or 0) * months
 
-        listings.append({"name": place.title, "revenue": round(total_revenue, 2)})
+        listings.append(
+            {"name": place.title[:10] + "...", "revenue": round(total_revenue, 2)}
+        )
 
     # Sort by revenue, descending
     top_listings = sorted(listings, key=lambda x: x["revenue"], reverse=True)[:5]
