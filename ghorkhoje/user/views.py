@@ -14,6 +14,12 @@ from user.helpers import (
     user_login_service,
     forget_password_service,
     resend_otp_service,
+    get_stats,
+    revenue_booking_trend,
+    occupency_rate,
+    performance_matrics,
+    top_listings_data,
+    price_optimization_data,
 )
 from user.models import *
 from user.serializers import *
@@ -531,103 +537,21 @@ class UserAnalyticsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        bookings = Booking.objects.filter(place__owner=request.user).all()
-        places = Place.objects.filter(owner=request.user).all()
-        today = date.today()
-        print(bookings, "--------------------------------------")
-        print(bookings[0].move_in_date, "--------------------------------------")
-
-        # Total Revenue
-        total_rev = 0
-        total_rev_prev = 0
-        for b in bookings:
-            move_in = b.move_in_date
-            if move_in > today:
-                continue  # skip future bookings
-            months = (today.year - move_in.year) * 12 + (today.month - move_in.month)
-            total_rev += months * b.rent_per_month
-            total_rev_prev += (months - 1) * b.rent_per_month
-
-        change = total_rev - total_rev_prev
-        color = "green" if change > 0 else "red"
-
-        # Total Bookings
-        first_day_this_month = date(today.year, today.month, 1)
-
-        # Filter bookings by month for current user
-        bookings_this_month = Booking.objects.filter(
-            place__owner=request.user,
-            move_in_date__gte=first_day_this_month,
-            move_in_date__lte=today,
-        ).count()
-
-        # Avg Rating
-        avg_overall = Review.objects.filter(reviewee=request.user).aggregate(
-            avg=Avg("overall")
-        )["avg"]
-
-        first_day_this_month = today.replace(day=1)
-
-        # --- 1. Reviews before this month ---
-        prev_reviews_qs = Review.objects.filter(
-            reviewee=request.user, created_at__lt=first_day_this_month
+        stats = get_stats(request)
+        rev_booking_trend = revenue_booking_trend(request)
+        occupency_trend = occupency_rate(request)
+        performance = performance_matrics(request)
+        top_listings = top_listings_data(request)
+        price_optimization = price_optimization_data(request)
+        return common_response(
+            200,
+            "Analytics fetched successfully.",
+            data={
+                "stats": stats,
+                "revenue_booking_trend": rev_booking_trend,
+                "occupancy_trend": occupency_trend,
+                "performance_metrics": performance,
+                "top_listings": top_listings,
+                "price_optimization": price_optimization,
+            },
         )
-        avg_prev = prev_reviews_qs.aggregate(avg=Avg("overall"))["avg"]
-
-        # --- 2. Reviews from this month ---
-        this_month_reviews_qs = Review.objects.filter(
-            reviewee=request.user, created_at__gte=first_day_this_month
-        )
-        avg_this_month = this_month_reviews_qs.aggregate(avg=Avg("overall"))["avg"]
-
-        if avg_prev is not None and avg_this_month is not None:
-            if avg_this_month > avg_prev:
-                review_color = "green"
-            elif avg_this_month < avg_prev:
-                review_color = "red"
-            else:
-                review_color = "gray"
-        elif avg_this_month is not None and avg_prev is None:
-            review_color = "green"
-        elif avg_this_month is None:
-            review_color = "gray"
-        else:
-            review_color = "gray"
-
-        # Occupancy Rate
-        bookings_before_this_month = Booking.objects.filter(
-            place__owner=request.user, created_at__lt=first_day_this_month
-        ).count()
-
-        stats = [
-            {
-                "title": "Total Revenue",
-                "value": total_rev,
-                "change": change,
-                "icon": "DollarSign",
-                "color": color,
-            },
-            {
-                "title": "Total Bookings",
-                "value": bookings.count(),
-                "change": bookings_this_month,
-                "icon": "Calendar",
-                "color": "blue" if bookings_this_month > 0 else "gray",
-            },
-            {
-                "title": "Avg Rating",
-                "value": round(avg_overall or 0, 2),
-                "change": avg_prev - avg_overall,
-                "icon": "Star",
-                "color": review_color,
-            },
-            {
-                "title": "Occupancy Rate",
-                "value": f"{round((bookings.count() / places.count()) * 100, 2)}%",
-                "change": bookings.count() - bookings_before_this_month,
-                "icon": "Users",
-                "color": "purple",
-            },
-        ]
-
-        return common_response(200, "Analytics fetched successfully.")
