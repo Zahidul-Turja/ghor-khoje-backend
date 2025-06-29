@@ -191,8 +191,6 @@ def get_stats(request):
     ).all()
     places = Place.objects.filter(owner=request.user).all()
     today = date.today()
-    print(bookings, "--------------------------------------")
-    print(bookings[0].move_in_date, "--------------------------------------")
 
     # Total Revenue
     total_rev = 0
