@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
-from ghorkhoje.views import get_random_quote
+from ghorkhoje.views import *
 from user.urls import auth_urlpatterns, user_urlpatterns, application_urlpatterns
 from place.urls import place_urlpatterns
 from booking.urls import booking_urlpatterns
@@ -18,6 +18,11 @@ api_v1_urls = [
     path("bookings/", include(booking_urlpatterns), name="booking_urls"),
     path("feedback/", include(feedback_urlpatterns), name="feedback_urls"),
     path("chat/", include(chat_urlpatterns), name="chat_urls"),
+    path(
+        "generals/reviews/",
+        GeneralReviews.as_view(),
+        name="general_reviews",
+    ),
 ]
 
 urlpatterns = [
