@@ -128,6 +128,10 @@ def user_login_service(payload, request):
 
     try:
         user = User.objects.get(email=email)
+        if user.is_deleted:
+            custom_exception(
+                "User account has been deactivated. Please contact support."
+            )
         if user.is_active is False:
             custom_exception("User is not active. Please verify your email first.")
     except User.DoesNotExist:

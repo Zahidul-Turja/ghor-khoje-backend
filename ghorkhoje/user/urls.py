@@ -13,6 +13,9 @@ auth_urlpatterns = [
     ),
     path("login/", LoginUserAPIView.as_view(), name="login_user"),
     path("logout/", LogoutUserAPIView.as_view(), name="logout_user"),
+    path(
+        "deactivate-account/", DeactivateUserAPIView.as_view(), name="deactivate_user"
+    ),
     path("change-password/", ChangePasswordAPIView.as_view(), name="change_password"),
     path("forget-password/", ForgetPasswordAPIView.as_view(), name="forget_password"),
     path("reset-password/", ResetPasswordAPIView.as_view(), name="reset_password"),

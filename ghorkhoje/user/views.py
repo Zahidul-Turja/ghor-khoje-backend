@@ -177,6 +177,27 @@ class LogoutUserAPIView(APIView):
             return common_response(400, str(e))
 
 
+class DeactivateUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            user.is_active = False
+            user.is_deleted = True
+            user.save()
+
+            # Optionally, you can also blacklist the token
+            refresh_token = request.data.get("refresh_token")
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+
+            return common_response(200, "User account deactivated successfully.")
+        except Exception as e:
+            return common_response(400, str(e))
+
+
 class UserProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
