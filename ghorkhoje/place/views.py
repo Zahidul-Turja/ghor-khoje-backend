@@ -5,6 +5,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.pagination import PageNumberPagination
 
+from django.db.models import Q
+from django.utils.timezone import now, timedelta
+
 from place.models import *
 from place.serializer import *
 from user.models import Notification
@@ -55,6 +58,36 @@ class CategoryAPIView(APIView):
             return common_response(400, str(e))
 
 
+# class PlaceListAPIView(APIView):
+#     permission_classes = [AllowAny]
+#     serializer_class = PlaceDetailsSerializer
+#     pagination_class = StandardResultsSetPagination
+
+#     def get(self, request):
+#         try:
+#             category_slug = request.query_params.get("category", "all")
+#             search_query = request.query_params.get("search", "").strip().lower()
+#             date_range = request.query_params.get(
+#                 "date_range", None
+#             )  # last 7 days / last 30 days / all time
+#             sort_by_price = request.query_params.get("sort_by_price", "created_at")
+
+#             category = Category.objects.filter(slug=category_slug).first()
+#             places = (
+#                 Place.objects.filter(category=category, is_available=True)
+#                 if category_slug != "all"
+#                 else Place.objects.filter(is_available=True).all()
+#             )
+#             paginator = self.pagination_class()
+#             paginated_places = paginator.paginate_queryset(places, request)
+#             serializer = self.serializer_class(
+#                 paginated_places, many=True, context={"request": request}
+#             )
+#             return paginator.get_paginated_response(serializer.data)
+#         except Exception as e:
+#             return common_response(400, str(e))
+
+
 class PlaceListAPIView(APIView):
     permission_classes = [AllowAny]
     serializer_class = PlaceDetailsSerializer
@@ -62,20 +95,59 @@ class PlaceListAPIView(APIView):
 
     def get(self, request):
         try:
-            category_slug = request.query_params.get("category")
-            category = Category.objects.filter(slug=category_slug).first()
-            places = (
-                Place.objects.filter(category=category, is_available=True)
+            category_slug = request.query_params.get("category", "all")
+            search_query = request.query_params.get("search", "").strip().lower()
+            date_range = request.query_params.get(
+                "date_range", None
+            )  # 'last_7_days', 'last_30_days', 'all'
+            sort_by_price = request.query_params.get(
+                "sort_by_price", "created_at"
+            )  # 'low_to_high' / 'high_to_low'
+
+            # Get Category
+            category = (
+                Category.objects.filter(slug=category_slug).first()
                 if category_slug != "all"
-                else Place.objects.filter(is_available=True).all()
+                else None
             )
+
+            # Base queryset
+            places = Place.objects.filter(is_available=True)
+            if category:
+                places = places.filter(category=category)
+
+            # Filter: Search
+            if search_query:
+                places = places.filter(
+                    Q(title__icontains=search_query)
+                    | Q(description__icontains=search_query)
+                )
+
+            # Filter: Date Range
+            if date_range == "last_7_days":
+                places = places.filter(created_at__gte=now() - timedelta(days=7))
+            elif date_range == "last_30_days":
+                places = places.filter(created_at__gte=now() - timedelta(days=30))
+            # else 'all' means no filter
+
+            # Sorting
+            if sort_by_price == "low_to_high":
+                places = places.order_by("rent_per_month")
+            elif sort_by_price == "high_to_low":
+                places = places.order_by("-rent_per_month")
+            else:
+                places = places.order_by("-created_at")  # default
+
+            # Pagination & Serialization
             paginator = self.pagination_class()
             paginated_places = paginator.paginate_queryset(places, request)
             serializer = self.serializer_class(
                 paginated_places, many=True, context={"request": request}
             )
             return paginator.get_paginated_response(serializer.data)
+
         except Exception as e:
+            traceback.print_exc()
             return common_response(400, str(e))
 
 
