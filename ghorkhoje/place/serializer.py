@@ -302,7 +302,9 @@ class PlaceSerializer(serializers.ModelSerializer):
 
 
 class PlaceUpdateSerializer(serializers.ModelSerializer):
-    facilities = FacilitySerializer(many=True, required=False)
+    facilities = serializers.ListField(
+        child=serializers.IntegerField(), required=False, write_only=True
+    )
 
     class Meta:
         model = Place
@@ -338,6 +340,20 @@ class PlaceUpdateSerializer(serializers.ModelSerializer):
             "area_in_sqft",
             "capacity",
             "appointment_status",
-            "created_at",
+            "is_available",
             "featured",
         ]
+
+    def update(self, instance, validated_data):
+        facilities_data = validated_data.pop("facilities", None)
+
+        # Update scalar fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update M2M: facilities
+        if facilities_data is not None:
+            instance.facilities.set(Facility.objects.filter(id__in=facilities_data))
+
+        return instance

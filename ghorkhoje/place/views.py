@@ -398,6 +398,8 @@ class ImageCreateAPIView(APIView):
                     403, "You are not authorized to add images to this place."
                 )
 
+            print(request)
+
             image = request.FILES.get("image")
             description = request.data.get("description")
             image = Image.objects.create(
