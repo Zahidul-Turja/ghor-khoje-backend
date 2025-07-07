@@ -82,7 +82,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = ["image", "description"]
+        fields = ["id", "image", "description"]
 
 
 class OwnerSerializer(serializers.ModelSerializer):

@@ -382,3 +382,57 @@ class PlaceReviewAPIView(APIView):
         except Exception as e:
             traceback.print_exc()
             return common_response(400, str(e))
+
+
+class ImageCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, slug):
+        try:
+            place = Place.objects.filter(slug=slug).first()
+            if not place:
+                return common_response(404, "Place not found.")
+
+            if place.owner != request.user:
+                return common_response(
+                    403, "You are not authorized to add images to this place."
+                )
+
+            image = request.FILES.get("image")
+            description = request.data.get("description")
+            image = Image.objects.create(
+                place=place, image=image, description=description
+            )
+            serializer = ImageSerializer(image, context={"request": request})
+
+            return common_response(
+                200, "Images added successfully.", data=serializer.data
+            )
+        except Exception as e:
+            traceback.print_exc()
+            return common_response(400, str(e))
+
+
+class ImageDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, slug, image_id):
+        try:
+            place = Place.objects.filter(slug=slug).first()
+            if not place:
+                return common_response(404, "Place not found.")
+
+            if place.owner != request.user:
+                return common_response(
+                    403, "You are not authorized to delete this image."
+                )
+
+            image = Image.objects.filter(place=place, id=image_id).first()
+            if not image:
+                return common_response(404, "Image not found.")
+
+            image.delete()
+            return common_response(200, "Image deleted successfully.")
+        except Exception as e:
+            traceback.print_exc()
+            return common_response(400, str(e))
