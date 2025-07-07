@@ -12,6 +12,7 @@ place_urlpatterns = [
         FeaturedPlaceListAPIView.as_view(),
         name="featured_place_list",
     ),
+    path("update/<str:slug>/", PlaceUpdateAPIView.as_view(), name="place_update"),
     path("<str:slug>/", PlaceDetailsAPIView.as_view(), name="place_detail"),
     path(
         "toggle-bookmark/<str:slug>/",

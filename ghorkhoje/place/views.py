@@ -210,6 +210,37 @@ class PlaceAPIView(APIView):
             return common_response(400, str(e))
 
 
+class PlaceUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, slug):
+        try:
+            place = Place.objects.filter(slug=slug).first()
+            if not place:
+                return common_response(404, "Place not found.")
+
+            if place.owner != request.user:
+                return common_response(
+                    403, "You are not authorized to update this place."
+                )
+
+            serializer = PlaceUpdateSerializer(
+                place, data=request.data, partial=True, context={"request": request}
+            )
+            if serializer.is_valid():
+                place = serializer.save()
+                return common_response(
+                    200,
+                    "Place updated successfully.",
+                    PlaceDetailsSerializer(place, context={"request": request}).data,
+                )
+            else:
+                return common_response(400, "Invalid data.", serializer.errors)
+        except Exception as e:
+            traceback.print_exc()
+            return common_response(400, str(e))
+
+
 class FeaturedPlaceListAPIView(APIView):
     permission_classes = [AllowAny]
     serializer_class = PlaceDetailsSerializer

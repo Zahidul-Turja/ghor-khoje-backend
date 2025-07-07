@@ -93,20 +93,6 @@ if os.environ.get("ENVIRONMENT") == "production":
             },
         }
     }
-
-    # CHANNEL_LAYERS = {
-    #     "default": {
-    #         "BACKEND": "channels_postgres.core.PostgresChannelLayer",
-    #         "CONFIG": {
-    #             "ENGINE": "django.db.backends.postgresql",
-    #             "NAME": os.environ.get("NEON_DB_NAME", "ghorkhoje"),
-    #             "USER": os.environ.get("NEON_DB_USER", "postgres"),
-    #             "PASSWORD": os.environ.get("NEON_DB_PASSWORD", "postgres"),
-    #             "HOST": os.environ.get("NEON_DB_HOST", "db.neon.tech"),
-    #             "PORT": os.environ.get("NEON_DB_PORT", "5432"),
-    #         },
-    #     },
-    # }
     CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 else:
     DATABASES = {

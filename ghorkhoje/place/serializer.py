@@ -299,3 +299,45 @@ class PlaceSerializer(serializers.ModelSerializer):
                 Image.objects.create(place=place, **image_data)
 
             return place
+
+
+class PlaceUpdateSerializer(serializers.ModelSerializer):
+    facilities = FacilitySerializer(many=True, required=False)
+
+    class Meta:
+        model = Place
+        fields = [
+            "title",
+            "description",
+            "category",
+            "facilities",
+            "city",
+            "area_name",
+            "area_code",
+            "block_name",
+            "street_name",
+            "house_name",
+            "house_number",
+            "apartment_number",
+            "floor_number",
+            "rent_per_month",
+            "extra_bills",
+            "num_prepayment_months",
+            "latitude",
+            "longitude",
+            "available_from",
+            "is_active",
+            "images",
+            "num_of_bedrooms",
+            "num_of_bathrooms",
+            "num_of_balconies",
+            "num_of_kitchens",
+            "num_of_living_rooms",
+            "num_of_dining_rooms",
+            "num_of_parking_spaces",
+            "area_in_sqft",
+            "capacity",
+            "appointment_status",
+            "created_at",
+            "featured",
+        ]
