@@ -13,4 +13,9 @@ chat_urlpatterns = [
         AllMessagesAPIView.as_view(),
         name="all_messages",
     ),
+    path(
+        "messages-by-user-id/<int:user_id>/",
+        MessagesByUserIdAPIView.as_view(),
+        name="user_messages",
+    ),
 ]

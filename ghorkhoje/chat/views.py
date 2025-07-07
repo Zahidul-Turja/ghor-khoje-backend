@@ -5,6 +5,7 @@ from django.db.models import Q
 
 
 from chat.serializers import *
+from user.models import User
 
 
 # Create your views here.
@@ -44,3 +45,35 @@ class AllMessagesAPIView(APIView):
                 "data": serializer.data,
             }
         )
+
+
+class MessagesByUserIdAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        user = request.user
+        other_user = User.objects.get(id=user_id)
+
+        try:
+            conversation = Conversation.objects.filter(
+                Q(user=user, other_user=other_user)
+                | Q(user=other_user, other_user=user)
+            ).first()
+            messages = Message.objects.filter(conversation=conversation)
+            serializer = MessageSerializer(
+                messages, many=True, context={"request": request}
+            )
+            return Response(
+                {
+                    "status": "success",
+                    "message": "Messages fetched successfully.",
+                    "data": serializer.data,
+                }
+            )
+        except Conversation.DoesNotExist:
+            return Response(
+                {
+                    "status": "failed",
+                    "message": "Conversation not found.",
+                }
+            )
