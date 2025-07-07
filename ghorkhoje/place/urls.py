@@ -13,6 +13,7 @@ place_urlpatterns = [
         name="featured_place_list",
     ),
     path("update/<str:slug>/", PlaceUpdateAPIView.as_view(), name="place_update"),
+    path("delete/<str:slug>/", PlaceDeleteAPIView.as_view(), name="place_delete"),
     path("<str:slug>/", PlaceDetailsAPIView.as_view(), name="place_detail"),
     path(
         "toggle-bookmark/<str:slug>/",

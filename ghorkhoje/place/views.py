@@ -241,6 +241,27 @@ class PlaceUpdateAPIView(APIView):
             return common_response(400, str(e))
 
 
+class PlaceDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, slug):
+        try:
+            place = Place.objects.filter(slug=slug).first()
+            if not place:
+                return common_response(404, "Place not found.")
+
+            if place.owner != request.user:
+                return common_response(
+                    403, "You are not authorized to delete this place."
+                )
+
+            place.delete()
+            return common_response(200, "Place deleted successfully.")
+        except Exception as e:
+            traceback.print_exc()
+            return common_response(400, str(e))
+
+
 class FeaturedPlaceListAPIView(APIView):
     permission_classes = [AllowAny]
     serializer_class = PlaceDetailsSerializer
