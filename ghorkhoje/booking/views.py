@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
+from datetime import date
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -50,6 +51,9 @@ class BookingAPIView(APIView):
                         "message": "This place is already booked or not available.",
                     },
                 )
+            today = timezone.now().date()
+            first_of_next_month = (today.replace(day=1) + relativedelta(months=1))
+            data["move_in_date"] = first_of_next_month
 
             contract_duration = int(request.data.get("contract_duration", 6))
             move_out_date = timezone.now().date() + relativedelta(
