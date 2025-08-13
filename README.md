@@ -94,8 +94,21 @@ This spins up:
 - Redis broker
 - Celery worker
 - Celery beat scheduler
+- Adminer
 
 Migrate the Databases using these commands
+
+First check the name of the backend container using this command
+```bash
+sudo docker ps
+```
+Then enter the **bash** with,
+
+```bash
+sudo docker exec -it <container_name> bash
+```
+
+and now migrate as you would on a regular Django app
 
 ```bash
 python manage.py makemigrations
