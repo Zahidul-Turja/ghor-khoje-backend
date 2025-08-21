@@ -32,10 +32,12 @@ def send_otp_email(recipient_email, otp):
             <div style="max-width: 500px; margin: auto; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
             <h2 style="text-align: center; color: #333333;">Verify Your Email</h2>
             <p style="font-size: 16px; color: #555;">Use the OTP below to verify your email address:</p>
-            <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px 0;">
-                {''.join([f'<div style="width: 40px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background-color: #eef2f7; border: 1px solid #ccc; border-radius: 5px;">{digit}</div>' for digit in otp])}
-            </div>
-            <p style="font-size: 14px; color: #999;">This OTP is valid for 10 minutes. Please do not share it with anyone.</p>
+            <table style="margin: 20px auto; border-spacing: 15px 0;">
+                <tr>
+                    {''.join([f'<td style="width: 50px; height: 60px; text-align: center; vertical-align: middle; font-size: 24px; font-weight: bold; background-color: #eef2f7; border: 2px solid #ddd; border-radius: 8px; color: #333;">{digit}</td>' for digit in otp])}
+                </tr>
+            </table>
+            <p style="font-size: 14px; color: #999; text-align: center;">Please do not share it with anyone.</p>
             </div>
         </body>
         </html>
