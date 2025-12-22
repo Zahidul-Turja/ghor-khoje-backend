@@ -29,6 +29,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_v1_urls), name="api_v1"),
     path("health/", get_random_quote, name="get_random_quotes"),
+    path("silk/", include("silk.urls", namespace="silk")),
 ]
 
 
