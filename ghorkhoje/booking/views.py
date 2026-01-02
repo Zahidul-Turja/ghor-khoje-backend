@@ -92,7 +92,7 @@ class BookingRequestListAPIView(APIView):
         user = request.user
         try:
             bookings = (
-                Booking.objects.select_related("place", "booked_by")
+                Booking.objects.select_related("place", "booked_by", "place__owner")
                 .filter(place__owner=user)
                 .order_by("-created_at")
             )
