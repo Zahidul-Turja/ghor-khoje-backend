@@ -52,7 +52,7 @@ class BookingAPIView(APIView):
                     },
                 )
             today = timezone.now().date()
-            first_of_next_month = (today.replace(day=1) + relativedelta(months=1))
+            first_of_next_month = today.replace(day=1) + relativedelta(months=1)
             data["move_in_date"] = first_of_next_month
 
             contract_duration = int(request.data.get("contract_duration", 6))
@@ -91,7 +91,11 @@ class BookingRequestListAPIView(APIView):
     def get(self, request):
         user = request.user
         try:
-            bookings = Booking.objects.filter(place__owner=user).order_by("-created_at")
+            bookings = (
+                Booking.objects.select_related("place", "booked_by")
+                .filter(place__owner=user)
+                .order_by("-created_at")
+            )
             if not bookings:
                 return JsonResponse(
                     {

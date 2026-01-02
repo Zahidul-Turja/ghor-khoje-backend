@@ -52,7 +52,7 @@ class BookingRequestListSerializer(serializers.ModelSerializer):
             "latitude",
             "longitude",
             "area_in_sqft",
-            "status",  # Assuming 'status' is a field in Booking model
+            "status",
         ]
 
     def get_place(self, obj):
