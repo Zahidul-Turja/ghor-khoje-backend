@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from booking.models import Booking
 from user.serializers import UserProfileSerializer
-from place.serializer import PlaceListSerializer
+from place.serializer import PlaceListSerializer, PlaceListOwnerSerializer
 from place.models import Place
 from user.models import User
 
@@ -57,7 +57,7 @@ class BookingRequestListSerializer(serializers.ModelSerializer):
 
     def get_place(self, obj):
         return (
-            PlaceListSerializer(obj.place, context=self.context).data
+            PlaceListOwnerSerializer(obj.place, context=self.context).data
             if obj.place
             else None
         )
