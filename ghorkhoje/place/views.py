@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.pagination import PageNumberPagination
 
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.utils.timezone import now, timedelta
 
 from place.models import *
@@ -90,7 +90,7 @@ class CategoryAPIView(APIView):
 
 class PlaceListAPIView(APIView):
     permission_classes = [AllowAny]
-    serializer_class = PlaceDetailsSerializer
+    serializer_class = PlaceListSerializer
     pagination_class = StandardResultsSetPagination
 
     def get(self, request):
@@ -112,7 +112,17 @@ class PlaceListAPIView(APIView):
             )
 
             # Base queryset
-            places = Place.objects.filter(is_available=True)
+            places = (
+                Place.objects.select_related("owner")
+                .prefetch_related(
+                    Prefetch(
+                        "images",
+                        queryset=Image.objects.only("id", "image")[:1],
+                        to_attr="first_image",
+                    ),
+                )
+                .filter(is_available=True)
+            )
             if category:
                 places = places.filter(category=category)
 
@@ -156,7 +166,6 @@ class PlaceAPIView(APIView):
 
     def post(self, request):
         try:
-            print(request.data, "-------------------------------------")
             # Normalize scalar fields (convert single-item lists to strings/numbers)
             normalized_data = {
                 key: value[0] if isinstance(value, list) else value
@@ -264,11 +273,21 @@ class PlaceDeleteAPIView(APIView):
 
 class FeaturedPlaceListAPIView(APIView):
     permission_classes = [AllowAny]
-    serializer_class = PlaceDetailsSerializer
+    serializer_class = PlaceListSerializer
 
     def get(self, request):
         try:
-            featured_places = Place.objects.filter(featured=True, is_available=True)
+            featured_places = (
+                Place.objects.select_related("owner")
+                .prefetch_related(
+                    Prefetch(
+                        "images",
+                        queryset=Image.objects.only("id", "image")[:1],
+                        to_attr="first_image",
+                    ),
+                )
+                .filter(featured=True, is_available=True)
+            )
             serializer = self.serializer_class(
                 featured_places, many=True, context={"request": request}
             )

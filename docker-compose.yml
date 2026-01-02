@@ -1,54 +1,10 @@
 version: "3.8"
 
 services:
-  # worker: &worker
-  #   build: .
-  #   volumes:
-  #     - ./media:/media
-  #     - ./static:/static
-  #     - .:/app
-  #   depends_on:
-  #     - db
-  #     - redis
-  #   environment:
-  #     # Django settings overrides:
-  #     - ALLOWED_HOSTS=*
-  #     - DEBUG=True
-  #     - DATABASE_URL=postgres://postgres:postgres@db:5432/ghorkhoje
-  #     - DATABASE_NAME=ghorkhoje
-  #     - DATABASE_USER=postgres
-  #     - DATABASE_PASSWORD=postgres
-  #     - DATABASE_HOST=db
-  #     - DATABASE_PORT=5432
-  #     - REDIS_URL=redis://redis:6379
-  #     - HOST=db
-  #     - REDIS_HOST=redis
-  #     - REDIS_PORT=6379
-  #   networks:
-  #     - ghorkhoje-network
-  #   command: >
-  #     bash -c "cd ghorkhoje && celery -A ghorkhoje.celery worker -l info"
-
-  # celery-beat:
-  #   container_name: ghorkhoje-celery-beat
-  #   <<: *worker
-  #   volumes:
-  #     - ./media:/media
-  #     - ./static:/static
-  #     - .:/app
-  #   depends_on:
-  #     - db
-  #     - redis
-  #     - web
-  #   networks:
-  #     - ghorkhoje-network
-  #   command: >
-  #     bash -c "cd ghorkhoje && celery -A ghorkhoje.celery beat -l info"
-
   redis:
     image: redis:5
     container_name: redis
-    restart: always
+    # restart: always
     volumes:
       - redisdata:/data
     networks:
@@ -91,7 +47,7 @@ services:
 
   adminer:
     image: adminer
-    restart: always
+    # restart: always
     ports:
       - "8080:8080"
     environment:
