@@ -1,6 +1,6 @@
 import traceback
 from datetime import date, timedelta
-from django.db.models import Avg
+from django.db.models import Avg, Prefetch
 
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -23,8 +23,7 @@ from user.helpers import (
 )
 from user.models import *
 from user.serializers import *
-from booking.models import Booking
-from place.serializer import PlaceDetailsSerializer
+from place.serializer import PlaceListOwnerSerializer
 
 
 class Pagination(PageNumberPagination):
@@ -374,12 +373,25 @@ class ListedPropertiesAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        from place.models import Image
+
         try:
             user = request.user
-            properties = user.owned_places.order_by("-created_at")
+            properties = (
+                Place.objects.select_related("owner", "category")
+                .prefetch_related(
+                    Prefetch(
+                        "images",
+                        queryset=Image.objects.only("id", "image")[:1],
+                        to_attr="first_image",
+                    ),
+                )
+                .filter(owner=user)
+                .all()
+            )
             pagination = Pagination()
             properties = pagination.paginate_queryset(properties, request)
-            serializer = PlaceDetailsSerializer(
+            serializer = PlaceListOwnerSerializer(
                 properties, many=True, context={"request": request}
             )
             return pagination.get_paginated_response(serializer.data)

@@ -168,7 +168,7 @@ class Place(TimestampedModel):
             or 0
         )
 
-    def get_avarage_description_match_rating(self):
+    def get_average_description_match_rating(self):
         return (
             PlaceReview.objects.filter(
                 place=self, description_match__isnull=False

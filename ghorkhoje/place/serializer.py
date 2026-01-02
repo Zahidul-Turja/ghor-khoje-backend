@@ -190,6 +190,40 @@ class PlaceListSerializer(serializers.ModelSerializer):
         return instance.get_average_overall()
 
 
+class PlaceListOwnerSerializer(serializers.ModelSerializer):
+    owner_full_name = serializers.SerializerMethodField()
+    avg_rating = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    category = CategorySerializer()
+
+    class Meta:
+        model = Place
+        fields = [
+            "id",
+            "slug",
+            "title",
+            "owner_full_name",
+            "rent_per_month",
+            "avg_rating",
+            "image",
+            "category",
+        ]
+
+    def get_image(self, instance):
+        request = self.context.get("request")
+        if hasattr(instance, "first_image") and instance.first_image:
+            first_image = instance.first_image[0]
+        else:
+            first_image = instance.images.first()
+        return request.build_absolute_uri(first_image.image.url)
+
+    def get_owner_full_name(self, instance):
+        return instance.owner.full_name
+
+    def get_avg_rating(self, instance):
+        return instance.get_average_overall()
+
+
 class PlaceDetailsSerializer(serializers.ModelSerializer):
     owner = OwnerSerializer(read_only=True)
     total_per_month = serializers.SerializerMethodField()
@@ -248,7 +282,7 @@ class PlaceDetailsSerializer(serializers.ModelSerializer):
     def get_avg_ratings(self, instance):
         res = {
             "cleanliness": instance.get_average_cleanliness_rating(),
-            "description_match": instance.get_avarage_description_match_rating(),
+            "description_match": instance.get_average_description_match_rating(),
             "location_convenience": instance.get_average_location_convenience_rating(),
             "value_for_money": instance.get_average_value_for_money_rating(),
             "neighborhood": instance.get_average_neighborhood_rating(),

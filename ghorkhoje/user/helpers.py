@@ -398,7 +398,7 @@ def performance_matrics(request):
         if cleanliness > 0:
             metrics["cleanliness"].append(cleanliness)
 
-        description_match = place.get_avarage_description_match_rating()
+        description_match = place.get_average_description_match_rating()
         if description_match > 0:
             metrics["description_match"].append(description_match)
 
