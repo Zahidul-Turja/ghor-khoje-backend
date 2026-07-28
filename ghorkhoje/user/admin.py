@@ -1,7 +1,7 @@
 from django.utils.html import format_html
 from django.contrib import admin
 
-from user.models import *
+from user.models import User, LandlordApplication, Notification, Review
 
 # Register your models here.
 
@@ -59,8 +59,7 @@ class LandlordAdmin(admin.ModelAdmin):
 
     def applicant_info(self, obj):
         user = obj.user
-        return format_html(
-            f"""
+        return format_html(f"""
             <div style="line-height: 1.6;">
                 <strong>Name:</strong> {user.full_name}<br>
                 <strong>Email:</strong> {user.email}<br>
@@ -72,8 +71,7 @@ class LandlordAdmin(admin.ModelAdmin):
                 <strong>User Type:</strong> {user.user_type}<br>
                 {"<br><img src='{}' width='100' style='border-radius: 8px;' />".format(user.profile_image.url) if user.profile_image else ""}
             </div>
-            """
-        )
+            """)
 
     applicant_info.short_description = "Applicant Info"
 
@@ -85,19 +83,19 @@ class NotificationAdmin(admin.ModelAdmin):
     list_per_page = 40
 
 
-class TaskAdmin(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "user",
-        "title",
-        "description",
-        "category",
-        "priority",
-        "due_date",
-    )
-    search_fields = ("user__full_name", "user__email")
-    ordering = ("-created_at",)
-    list_per_page = 40
+# class TaskAdmin(admin.ModelAdmin):
+#     list_display = (
+#         "id",
+#         "user",
+#         "title",
+#         "description",
+#         "category",
+#         "priority",
+#         "due_date",
+#     )
+#     search_fields = ("user__full_name", "user__email")
+#     ordering = ("-created_at",)
+#     list_per_page = 40
 
 
 class ReviewUserAdmin(admin.ModelAdmin):
@@ -115,5 +113,4 @@ class ReviewUserAdmin(admin.ModelAdmin):
 admin.site.register(User, UserAdmin)
 admin.site.register(LandlordApplication, LandlordAdmin)
 admin.site.register(Notification, NotificationAdmin)
-admin.site.register(Task, TaskAdmin)
 admin.site.register(Review, ReviewUserAdmin)

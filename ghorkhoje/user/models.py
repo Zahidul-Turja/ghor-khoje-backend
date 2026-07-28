@@ -7,7 +7,6 @@ from django.contrib.auth.models import (
 from django.db.models import Avg
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.db.models import TextChoices
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from cloudinary_storage.storage import MediaCloudinaryStorage
@@ -102,9 +101,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     youtube = models.URLField(null=True, blank=True)
     telegram = models.URLField(null=True, blank=True)
 
-    bookmarks = models.ManyToManyField(
-        "place.Place", related_name="bookmarks", blank=True
-    )
+    # bookmarks = models.ManyToManyField(
+    #     "place.Place", related_name="bookmarks", blank=True
+    # )
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -315,48 +314,3 @@ class Notification(models.Model):
         ordering = ["-created_at"]
         verbose_name = "Notification"
         verbose_name_plural = "Notifications"
-
-
-# Tasks
-class TaskCategory(TextChoices):
-    maintenance = "Maintenance"
-    cleaning = "Cleaning"
-    guest_relations = "Guest Relations"
-    financial = "Financial"
-    marketing = "Marketing"
-    other = "Other"
-
-
-class TaskPriority(TextChoices):
-    high = "High"
-    medium = "Medium"
-    low = "Low"
-
-
-class Task(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    category = models.CharField(
-        max_length=50, choices=TaskCategory.choices, default=TaskCategory.other
-    )
-    priority = models.CharField(
-        max_length=50, choices=TaskPriority.choices, default=TaskPriority.low
-    )
-    due_date = models.DateField(blank=True, null=True)
-    related_property = models.ForeignKey(
-        "place.Place", on_delete=models.CASCADE, null=True, blank=True
-    )
-
-    is_complete = models.BooleanField(default=False)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Task for {self.user} - {self.title}"
-
-    class Meta:
-        verbose_name = "Task"
-        verbose_name_plural = "Tasks"
-        db_table = "tasks"

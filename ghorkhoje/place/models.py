@@ -276,3 +276,18 @@ class PlaceReview(TimestampedModel):
             + self.value_for_money
         ) // 4
         super().save(*args, **kwargs)
+
+
+class Bookmark(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="bookmarks"
+    )
+    places = models.ManyToManyField(Place, related_name="bookmarks")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "bookmarks"
+        verbose_name = "Bookmark"
+        verbose_name_plural = "Bookmarks"
