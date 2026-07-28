@@ -1,65 +1,68 @@
-version: "3.8"
-
+name: ghorkhojee
 services:
   redis:
     image: redis:5
-    container_name: redis
+    container_name: ghorkhojee_redis
     # restart: always
     volumes:
       - redisdata:/data
-    networks:
-      - ghorkhoje-network
+    # networks:
+    #   - ghorkhoje-network
 
   web:
     build: .
+    container_name: ghorkhojee_web
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
+      # - "8000:8000"
       - "8765:9876" # host:container
+    depends_on:
+      - db
     env_file:
       - .env
-    networks:
-      - ghorkhoje-network
+    # networks:
+    #   - ghorkhoje-network
     # command: >
     #   bash -c "python ghorkhoje/manage.py runserver 0.0.0.0:8000"
     command: >
-      bash -c "cd ghorkhoje && uvicorn ghorkhoje.asgi:application --host 0.0.0.0 --port 8000 --reload"
+      bash -c "cd ghorkhoje && uvicorn ghorkhoje.asgi:application --host 0.0.0.0 --port 9876"
 
   # Local development database
   db:
     image: postgres:13
+    container_name: ghorkhojee_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=ghorkhoje
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - "7654:5432"
+      - POSTGRES_DB=${DATABASE}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${PASSWORD}
+    # ports:
+    #   - "7654:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DATABASE}"]
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - ghorkhoje-network
+    # networks:
+    #   - ghorkhoje-network
 
-  adminer:
-    image: adminer
-    # restart: always
-    ports:
-      - "8080:8080"
-    environment:
-      - ADMINER_DEFAULT_SERVER=db
-    depends_on:
-      - db
-    networks:
-      - ghorkhoje-network
+  # adminer:
+  #   image: adminer
+  #   # restart: always
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - ADMINER_DEFAULT_SERVER=db
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - ghorkhoje-network
 
-networks:
-  ghorkhoje-network:
-    driver: bridge
+# networks:
+#   ghorkhoje-network:
+#     driver: bridge
 
 volumes:
   postgres_data:

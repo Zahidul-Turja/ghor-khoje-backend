@@ -9,15 +9,26 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Get the SECRET_KEY from environment variable or use the provided one as fallback
-SECRET_KEY = os.environ.get("SECRET_KEY", "secret_key-placeholder-for-development")
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+if not SECRET_KEY:
+    raise Exception("SECRET_KEY not set in environment!")
+
 ENVIRONMENT = os.environ.get("ENVIRONMENT")
 
-DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
-CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+
+if ENVIRONMENT == "production":
+    if DEBUG:
+        raise Exception("DEBUG must be False in production!")
+
+    if not ALLOWED_HOSTS or ALLOWED_HOSTS == [""]:
+        raise Exception("ALLOWED_HOSTS must be set in production!")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -41,20 +52,20 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     # "django_celery_beat",
-    "silk",
+    # "silk",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # ✅ Add this line here
-    "corsheaders.middleware.CorsMiddleware",  # move up for best CORS behavior
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "silk.middleware.SilkyMiddleware",
+    # "silk.middleware.SilkyMiddleware",
 ]
 
 
@@ -95,18 +106,26 @@ if os.environ.get("ENVIRONMENT") == "production":
             },
         }
     }
-    CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
+    # CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("redis", 6379)],
+            },
+        },
+    }
 else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": "ghorkhoje",
-            "USER": "postgres",
-            "PASSWORD": "postgres",
-            "HOST": "db",
-            "PORT": "5432",
+            "NAME": os.environ.get("DATABASE"),
+            "USER": os.environ.get("DB_USER"),
+            "PASSWORD": os.environ.get("PASSWORD"),
+            "HOST": os.environ.get("HOST_NAME", "db"),
+            "PORT": os.environ.get("PORT", "5432"),
             "OPTIONS": {
-                "sslmode": "prefer",  # Use SSL mode if available
+                "sslmode": "prefer",
             },
         }
     }
@@ -156,7 +175,7 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "turjazahidul@gmail.com")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 
 REST_USE_JWT = True
@@ -210,7 +229,7 @@ if os.environ.get("ENVIRONMENT") == "production":
         "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
     }
 
-    MEDIA_URL = "/ghorkhojee/media/"  # or any prefix you choose
+    MEDIA_URL = "/ghorkhojee/media/"
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 else:
     # In Development use Local Storage

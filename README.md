@@ -56,7 +56,7 @@ ENVIRONMENT=development
 HOST_NAME=db
 PORT=5432
 DATABASE=ghor_khojee_db
-USERNAME=ghor_khojee_admin
+DB_USER=ghor_khojee_admin
 PASSWORD=zCQrIjQ8uR2wpB9EJfaecz59vED5hwAA
 DEBUG=True
 
