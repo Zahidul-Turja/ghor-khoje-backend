@@ -1,6 +1,13 @@
 from django.urls import path
 
 from user.views import *
+from task.views import (
+    TaskCreationAPIView,
+    TaskDeleteAPIView,
+    TaskListAPIView,
+    TaskUpdateAPIView,
+    TaskToggleCompletedAPIView,
+)
 
 app_name = "user"
 
@@ -53,15 +60,15 @@ user_urlpatterns = [
         IdsBookmarkedPlacesAPIView.as_view(),
         name="ids_bookmarked_places",
     ),
-    # path("tasks/", TaskListAPIView.as_view(), name="task_list"),
-    # path("tasks/create/", TaskCreationAPIView.as_view(), name="create_task"),
-    # path("tasks/update/<int:pk>/", TaskUpdateAPIView.as_view(), name="update_task"),
-    # path("tasks/delete/<int:pk>/", TaskDeleteAPIView.as_view(), name="delete_task"),
-    # path(
-    #     "tasks/toggle-completed/<int:pk>/",
-    #     TaskToggleCompletedAPIView.as_view(),
-    #     name="toggle_task_completed",
-    # ),
+    path("tasks/", TaskListAPIView.as_view(), name="task_list"),
+    path("tasks/create/", TaskCreationAPIView.as_view(), name="create_task"),
+    path("tasks/update/<int:pk>/", TaskUpdateAPIView.as_view(), name="update_task"),
+    path("tasks/delete/<int:pk>/", TaskDeleteAPIView.as_view(), name="delete_task"),
+    path(
+        "tasks/toggle-completed/<int:pk>/",
+        TaskToggleCompletedAPIView.as_view(),
+        name="toggle_task_completed",
+    ),
     path("analytics/", UserAnalyticsAPIView.as_view(), name="user_analytics"),
     path("about-host/<int:pk>/", AboutHostAPIView.as_view(), name="about_host"),
     # Reviews
