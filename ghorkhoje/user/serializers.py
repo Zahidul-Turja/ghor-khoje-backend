@@ -504,12 +504,28 @@ class PlaceTitleSerializer(serializers.ModelSerializer):
 #         return PlaceTitleSerializer(obj.related_property, context=self.context).data
 
 
+# class BookmarksSerializer(serializers.Serializer):
+#     places = serializers.SerializerMethodField()
+
+#     def get_places(self, obj):
+#         return PlaceDetailsSerializer(
+#             obj.bookmarks, context=self.context, many=True
+#         ).data
+
+
 class BookmarksSerializer(serializers.Serializer):
     places = serializers.SerializerMethodField()
 
     def get_places(self, obj):
+        bookmark = getattr(obj, "bookmarks", None)
+
+        if not bookmark:
+            return []
+
         return PlaceDetailsSerializer(
-            obj.bookmarks, context=self.context, many=True
+            bookmark.places.all(),
+            context=self.context,
+            many=True,
         ).data
 
 

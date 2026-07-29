@@ -24,6 +24,7 @@ from user.helpers import (
 from user.models import *
 from user.serializers import *
 from place.serializer import PlaceListOwnerSerializer
+from place.models import Bookmark
 
 
 class Pagination(PageNumberPagination):
@@ -339,20 +340,43 @@ class MarkAllNotificationsReadAPIView(APIView):
             )
 
 
+# class BookmarkListAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         try:
+#             bookmarked_places_serializer = BookmarksSerializer(
+#                 request.user, context={"request": request}
+#             )
+
+#             return common_response(
+#                 200,
+#                 "Bookmarks fetched successfully.",
+#                 bookmarked_places_serializer.data,
+#             )
+#         except Exception as e:
+#             return common_response(400, str(e))
+
+
 class BookmarkListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
-            bookmarked_places_serializer = BookmarksSerializer(
-                request.user, context={"request": request}
+            bookmark, _ = Bookmark.objects.get_or_create(user=request.user)
+
+            serializer = PlaceDetailsSerializer(
+                bookmark.places.all(),
+                many=True,
+                context={"request": request},
             )
 
             return common_response(
                 200,
                 "Bookmarks fetched successfully.",
-                bookmarked_places_serializer.data,
+                serializer.data,
             )
+
         except Exception as e:
             return common_response(400, str(e))
 
