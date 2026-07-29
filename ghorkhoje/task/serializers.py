@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from task.models import Task
+from place.serializer import PlaceDetailsSerializer
+from user.serializers import PlaceTitleSerializer
 
 
 class TaskCreationSerializer(serializers.ModelSerializer):
