@@ -23,3 +23,9 @@ rnd/*
 # Add these lines to your .gitignore file
 .env
 *.env
+
+
+*.png
+*.jpg
+*.jpeg
+*.mp4
