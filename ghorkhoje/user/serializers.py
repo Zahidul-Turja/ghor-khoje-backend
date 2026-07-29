@@ -4,7 +4,7 @@ from django.db import transaction
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from ghorkhoje.settings import OTP_LENGTH
+from django.conf import settings
 from user.models import *
 from utils.responses import custom_exception
 
@@ -43,7 +43,7 @@ class UserRegistrationSerializer(serializers.Serializer):
 
 class RegisterUserOTPVerificationSerializer(serializers.Serializer):
     email = serializers.CharField(required=True, max_length=255)
-    otp = serializers.CharField(required=True, max_length=OTP_LENGTH)
+    otp = serializers.CharField(required=True, max_length=settings.OTP_LENGTH)
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -88,7 +88,7 @@ class ForgetPasswordSerializer(serializers.Serializer):
 
 class ResetPasswordSerializer(serializers.Serializer):
     email = serializers.CharField(required=True, max_length=255)
-    otp = serializers.CharField(required=True, max_length=OTP_LENGTH)
+    otp = serializers.CharField(required=True, max_length=settings.OTP_LENGTH)
     new_password = serializers.CharField(required=True, max_length=255)
     confirm_password = serializers.CharField(required=True, max_length=255)
 

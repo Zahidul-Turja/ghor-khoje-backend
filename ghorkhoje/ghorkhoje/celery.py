@@ -7,7 +7,7 @@ import requests
 from celery import current_app as app
 from django.utils import timezone
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ghorkhoje.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ghorkhoje.settings.local")
 
 app = Celery("ghorkhoje")
 

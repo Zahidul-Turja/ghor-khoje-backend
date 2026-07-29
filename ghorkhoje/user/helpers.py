@@ -5,7 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 
-from ghorkhoje.settings import OTP_LENGTH
+from django.conf import settings
 from user.models import User, Notification, Review
 
 from user.serializers import UserProfileSerializer
@@ -50,7 +50,7 @@ def send_otp_email(recipient_email, otp):
 
 def generate_otp():
     # return "1234"
-    return "".join(random.choices("0123456789", k=OTP_LENGTH))
+    return "".join(random.choices("0123456789", k=settings.OTP_LENGTH))
 
 
 def user_registration_service(payload):

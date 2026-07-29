@@ -1,7 +1,7 @@
 import os
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ghorkhoje.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ghorkhoje.settings.local")
 django.setup()  # <-- Initialize Django apps before any model-related imports
 
 from channels.routing import ProtocolTypeRouter, URLRouter

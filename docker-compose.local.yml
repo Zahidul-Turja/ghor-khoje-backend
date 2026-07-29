@@ -1,0 +1,45 @@
+name: ghorkhojee
+services:
+  redis:
+    image: redis:5
+    container_name: ghorkhojee_redis
+    # restart: always
+    volumes:
+      - redisdata:/data
+
+  web:
+    build: .
+    container_name: ghorkhojee_web
+    volumes:
+      - .:/app
+    ports:
+      - "8765:9876" # host:container
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=ghorkhoje.settings.local
+    # command: >
+    #   bash -c "python ghorkhoje/manage.py runserver 0.0.0.0:8000"
+    command: >
+      bash -c "cd ghorkhoje && uvicorn ghorkhoje.asgi:application --host 0.0.0.0 --port 9876"
+
+  db:
+    image: postgres:13
+    container_name: ghorkhojee_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${DATABASE}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redisdata:

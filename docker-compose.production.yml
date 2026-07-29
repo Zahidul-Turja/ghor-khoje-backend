@@ -21,6 +21,8 @@ services:
       - db
     env_file:
       - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=ghorkhoje.settings.production
     # networks:
     #   - ghorkhoje-network
     # command: >
