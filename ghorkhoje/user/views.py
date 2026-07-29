@@ -381,14 +381,29 @@ class BookmarkListAPIView(APIView):
             return common_response(400, str(e))
 
 
+# class IdsBookmarkedPlacesAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         try:
+#             bookmarked_places = request.user.bookmarks.all()
+#             ids = [place.id for place in bookmarked_places]
+#             return common_response(200, "Bookmarks fetched successfully.", ids)
+#         except Exception as e:
+#             return common_response(400, str(e))
+
+
 class IdsBookmarkedPlacesAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
-            bookmarked_places = request.user.bookmarks.all()
-            ids = [place.id for place in bookmarked_places]
+            bookmark, _ = Bookmark.objects.get_or_create(user=request.user)
+
+            ids = list(bookmark.places.values_list("id", flat=True))
+
             return common_response(200, "Bookmarks fetched successfully.", ids)
+
         except Exception as e:
             return common_response(400, str(e))
 
