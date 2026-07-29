@@ -48,9 +48,6 @@ class Facility(models.Model):
     description = models.TextField(null=True, blank=True)
     icon = models.ImageField(
         upload_to="facility_icons/",
-        storage=(
-            MediaCloudinaryStorage() if settings.ENVIRONMENT == "production" else None
-        ),
         null=True,
         blank=True,
     )
@@ -217,9 +214,6 @@ class Image(TimestampedModel):
     place = models.ForeignKey(Place, related_name="images", on_delete=models.CASCADE)
     image = models.ImageField(
         upload_to=unique_image_path,
-        storage=(
-            MediaCloudinaryStorage() if settings.ENVIRONMENT == "production" else None
-        ),
         validators=[
             validate_image_file,
             validate_image_size,

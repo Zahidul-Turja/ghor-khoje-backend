@@ -54,17 +54,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=14, null=True, blank=True, unique=True)
     profile_image = models.ImageField(
         upload_to="users/profile_images/",
-        storage=(
-            MediaCloudinaryStorage() if settings.ENVIRONMENT == "production" else None
-        ),
         null=True,
         blank=True,
     )
     cover_image = models.ImageField(
         upload_to="users/cover_images/",
-        storage=(
-            MediaCloudinaryStorage() if settings.ENVIRONMENT == "production" else None
-        ),
         null=True,
         blank=True,
     )
