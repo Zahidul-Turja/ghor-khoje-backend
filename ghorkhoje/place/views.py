@@ -319,6 +319,29 @@ class PlaceDetailsAPIView(APIView):
             return common_response(400, str(e))
 
 
+# class ToggleBookmarkPlaceAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request, slug):
+#         try:
+#             place = Place.objects.get(slug=slug)
+#             user = request.user
+
+#             if place.owner == user:
+#                 return common_response(400, "You cannot bookmark your own place.")
+
+#             if place in user.bookmarks.all():
+#                 user.bookmarks.remove(place)
+#                 return common_response(200, "Place removed from bookmarks.")
+#             else:
+#                 user.bookmarks.add(place)
+#                 return common_response(200, "Place added to bookmarks.")
+#         except Place.DoesNotExist:
+#             return common_response(404, "Place not found.")
+#         except Exception as e:
+#             return common_response(400, str(e))
+
+
 class ToggleBookmarkPlaceAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -330,12 +353,16 @@ class ToggleBookmarkPlaceAPIView(APIView):
             if place.owner == user:
                 return common_response(400, "You cannot bookmark your own place.")
 
-            if place in user.bookmarks.all():
-                user.bookmarks.remove(place)
+            # Get or create Bookmark object for user
+            bookmark, _ = Bookmark.objects.get_or_create(user=user)
+
+            if bookmark.places.filter(id=place.id).exists():
+                bookmark.places.remove(place)
                 return common_response(200, "Place removed from bookmarks.")
             else:
-                user.bookmarks.add(place)
+                bookmark.places.add(place)
                 return common_response(200, "Place added to bookmarks.")
+
         except Place.DoesNotExist:
             return common_response(404, "Place not found.")
         except Exception as e:
