@@ -9,8 +9,6 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from cloudinary_storage.storage import MediaCloudinaryStorage
-
 from user.configs import UserTypes, Gender
 
 

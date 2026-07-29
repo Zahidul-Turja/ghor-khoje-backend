@@ -10,8 +10,6 @@ from place.configs import AppointmentStatus
 
 from django.conf import settings
 
-from cloudinary_storage.storage import MediaCloudinaryStorage
-
 
 class TimestampedModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -26,9 +24,6 @@ class Category(models.Model):
     slug = models.SlugField(max_length=300, unique=True, blank=True, null=True)
     icon = models.ImageField(
         upload_to="category_icons/",
-        storage=(
-            MediaCloudinaryStorage() if settings.ENVIRONMENT == "production" else None
-        ),
         null=True,
         blank=True,
     )
