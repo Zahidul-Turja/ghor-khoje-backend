@@ -28,8 +28,8 @@ api_v1_urls = [
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_v1_urls), name="api_v1"),
-    path("health/", get_random_quote, name="get_random_quotes"),
-    # path("silk/", include("silk.urls", namespace="silk")),
+    path("health/", HealthView.as_view(), name="health_check"),
+    path("robots.txt", robots_txt, name="robots_txt"),
 ]
 
 

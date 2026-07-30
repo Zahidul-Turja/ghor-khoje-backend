@@ -1,28 +1,20 @@
-from django.http import JsonResponse
-import requests
-from random import randint
+from django.http import HttpResponse
+from django.views.decorators.http import require_GET
 
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework import status
 
 from user.models import Review
 from ghorkhoje.serializers import ReviewSerializer
 
 
-def get_random_quote(request):
-    return JsonResponse({"status": "success", "message": "Welcome to GhorKhojee API"})
-    quote_number = randint(1, 1400)
-    url = f"https://dummyjson.com/quotes/{quote_number}"
+class HealthView(APIView):
+    permission_classes = [AllowAny]
 
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-
-        data = response.json()
-        return JsonResponse(data)
-    except requests.exceptions.RequestException as e:
-        return JsonResponse({"error": str(e)}, status=500)
+    def get(self, request):
+        return Response({"message": "Okay"}, status=status.HTTP_200_OK)
 
 
 class GeneralReviews(APIView):
@@ -40,5 +32,18 @@ class GeneralReviews(APIView):
                 "status": "success",
                 "message": "Reviews fetched successfully.",
                 "data": review_data,
-            }
+            },
+            status=status.HTTP_200_OK,
         )
+
+
+@require_GET
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin/",  # keep crawlers off the Django admin entirely
+        "Disallow: /api/v1/auth/",  # sensitive endpoints
+        "Allow: /api/v1/public/",  # public endpoints stay crawlable
+        "",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
