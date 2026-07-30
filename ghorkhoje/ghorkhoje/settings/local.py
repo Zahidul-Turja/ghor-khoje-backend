@@ -21,8 +21,11 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
 
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = (
+    "HTTP_X_FORWARDED_PROTO",
+    os.environ.get("HTTP_X_FORWARDED_PROTO", "http"),
+)
+SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "False").lower() == "true"
 
 if ENVIRONMENT == "production":
     if DEBUG:
