@@ -3,13 +3,14 @@ services:
   redis:
     image: redis:5
     container_name: ghorkhojee_redis
-    # restart: always
+    restart: unless-stopped
     volumes:
       - redisdata:/data
 
   web:
     build: .
     container_name: ghorkhojee_web
+    restart: unless-stopped
     volumes:
       - .:/app
     ports:
@@ -28,6 +29,7 @@ services:
   db:
     image: postgres:13
     container_name: ghorkhojee_db
+    restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
