@@ -28,7 +28,7 @@ def send_application_status_update_email(
     base_url = "https://ghorkhojee.zahidulturja.com"
 
     if status == "APPROVED":
-        subject = "🎉 Your GhorKhojee Host Application Has Been Approved!"
+        subject = "Your GhorKhojee Host Application Has Been Approved!"
 
         text_content = (
             "Congratulations! Your application to become a host on GhorKhojee has been approved. "
@@ -42,7 +42,7 @@ def send_application_status_update_email(
         <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
             <div style="max-width: 520px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
                 
-                <h2 style="text-align: center; color: #2d3748;">🎉 Congratulations!</h2>
+                <h2 style="text-align: center; color: #2d3748;">Congratulations!</h2>
                 
                 <p style="font-size: 16px; color: #4a5568;">
                     Your application to become a <strong>host on GhorKhojee</strong> has been approved.
