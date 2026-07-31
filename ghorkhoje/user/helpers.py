@@ -27,7 +27,7 @@ def send_application_status_update_email(
     to = [recipient_email]
     base_url = "https://ghorkhojee.zahidulturja.com"
 
-    if status == LandlordApplication.STATUS["APPROVED"]:
+    if status == "APPROVED":
         subject = "🎉 Your GhorKhojee Host Application Has Been Approved!"
 
         text_content = (
@@ -72,7 +72,7 @@ def send_application_status_update_email(
         </html>
         """
 
-    elif status == LandlordApplication.STATUS["REJECTED"]:
+    elif status == "REJECTED":
         subject = "Update on Your GhorKhojee Host Application"
 
         text_content = (
