@@ -6,7 +6,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 
 from django.conf import settings
-from user.models import User, Notification, Review
+from user.models import User, Notification, Review, LandlordApplication
+
 
 from user.serializers import UserProfileSerializer
 from utils.responses import custom_exception
@@ -17,6 +18,113 @@ from place.models import Place
 from datetime import date
 from calendar import month_name
 from collections import defaultdict
+
+
+def send_application_status_update_email(
+    recipient_email: str, status: str, reason: str = None
+):
+    from_email = settings.EMAIL_HOST_USER
+    base_url = "https://ghorkhojee.zahidulturja.com"
+
+    if status == LandlordApplication.STATUS["APPROVED"]:
+        subject = "🎉 Your GhorKhojee Host Application Has Been Approved!"
+
+        text_content = (
+            "Congratulations! Your application to become a host on GhorKhojee has been approved. "
+            "You can now start listing your properties and reach potential tenants.\n\n"
+            f"Visit: {base_url}\n\n"
+            "Best regards,\nGhorKhojee Team"
+        )
+
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
+            <div style="max-width: 520px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                
+                <h2 style="text-align: center; color: #2d3748;">🎉 Congratulations!</h2>
+                
+                <p style="font-size: 16px; color: #4a5568;">
+                    Your application to become a <strong>host on GhorKhojee</strong> has been approved.
+                </p>
+
+                <p style="font-size: 16px; color: #4a5568;">
+                    You can now start listing your properties and connect with potential tenants.
+                </p>
+
+                <div style="text-align: center; margin: 25px 0;">
+                    <a href="{base_url}" style="background-color: #3182ce; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-size: 15px;">
+                        Go to Dashboard
+                    </a>
+                </div>
+
+                <p style="font-size: 14px; color: #718096;">
+                    If you have any questions, feel free to contact our support team.
+                </p>
+
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;" />
+
+                <p style="font-size: 12px; color: #a0aec0; text-align: center;">
+                    © GhorKhojee Team
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+    elif status == LandlordApplication.STATUS["REJECTED"]:
+        subject = "Update on Your GhorKhojee Host Application"
+
+        text_content = (
+            "Thank you for your interest in becoming a host on GhorKhojee.\n\n"
+            f"Unfortunately, your application was not approved.\nReason: {reason}\n\n"
+            "You are welcome to reapply after making the necessary updates or contact our support team for assistance.\n\n"
+            "Best regards,\nGhorKhojee Team"
+        )
+
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
+            <div style="max-width: 520px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                
+                <h2 style="text-align: center; color: #2d3748;">Application Update</h2>
+                
+                <p style="font-size: 16px; color: #4a5568;">
+                    Thank you for your interest in becoming a host on <strong>GhorKhojee</strong>.
+                </p>
+
+                <p style="font-size: 16px; color: #4a5568;">
+                    Unfortunately, your application was not approved at this time.
+                </p>
+
+                <div style="background-color: #fff5f5; border-left: 4px solid #e53e3e; padding: 12px 15px; margin: 20px 0;">
+                    <p style="margin: 0; font-size: 14px; color: #c53030;">
+                        <strong>Reason:</strong> {reason if reason else "Not specified"}
+                    </p>
+                </div>
+
+                <p style="font-size: 14px; color: #718096;">
+                    You may reapply after addressing the above concerns or reach out to our support team for further guidance.
+                </p>
+
+                <div style="text-align: center; margin: 25px 0;">
+                    <a href="{base_url}" style="background-color: #3182ce; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-size: 15px;">
+                        Visit GhorKhojee
+                    </a>
+                </div>
+
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;" />
+
+                <p style="font-size: 12px; color: #a0aec0; text-align: center;">
+                    © GhorKhojee Team
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+    msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
 
 
 def send_otp_email(recipient_email, otp):
