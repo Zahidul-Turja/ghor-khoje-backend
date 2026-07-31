@@ -10,6 +10,7 @@ from django.contrib.auth.models import Group
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from user.configs import UserTypes, Gender
+from user.helpers import send_application_status_update_email
 
 
 class CustomUserManager(BaseUserManager):
@@ -258,12 +259,22 @@ class LandlordApplication(models.Model):
                 user=self.user,
                 message="Your landlord application has been approved.",
             )
+            send_application_status_update_email(
+                recipient_email=self.user.email,
+                status=self.status,
+                reason=self.rejection_reason,
+            )
         elif self.status == "REJECTED":
             self.user.user_type = UserTypes.BACHELOR
             self.user.save()
             Notification.objects.create(
                 user=self.user,
                 message=f"Your landlord application has been rejected. Reason: {self.rejection_reason}",
+            )
+            send_application_status_update_email(
+                recipient_email=self.user.email,
+                status=self.status,
+                reason=self.rejection_reason,
             )
         super().save(*args, **kwargs)
 
