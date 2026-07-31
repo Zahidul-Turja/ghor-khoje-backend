@@ -1,7 +1,7 @@
 name: ghorkhojee
 services:
   redis:
-    image: redis:5
+    image: redis:7
     container_name: ghorkhojee_redis
     restart: unless-stopped
     volumes:
