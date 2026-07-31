@@ -24,6 +24,7 @@ def send_application_status_update_email(
     recipient_email: str, status: str, reason: str = None
 ):
     from_email = settings.EMAIL_HOST_USER
+    to = [recipient_email]
     base_url = "https://ghorkhojee.zahidulturja.com"
 
     if status == LandlordApplication.STATUS["APPROVED"]:
