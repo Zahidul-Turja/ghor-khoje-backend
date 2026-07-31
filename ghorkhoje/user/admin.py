@@ -15,6 +15,7 @@ class ReviewInline(admin.TabularInline):
 class UserAdmin(admin.ModelAdmin):
     inlines = [ReviewInline]
     list_display = ("id", "full_name", "email", "phone", "user_type")
+    list_display_links = ("id", "full_name", "email", "phone")
     exclude = ("password", "user_permissions")
     list_filter = ("user_type", "is_deleted")
     search_fields = ("full_name", "email", "phone")
