@@ -13,7 +13,6 @@ from user.models import User
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         # Check if user is authenticated
-        print(self.scope)
         if not self.scope["user"]:
             self.close()
             return
@@ -36,8 +35,6 @@ class ChatConsumer(WebsocketConsumer):
             async_to_sync(self.channel_layer.group_add)(
                 self.admin_room, self.channel_name
             )
-
-        print(f"User {self.user} connected")
 
     def disconnect(self, close_code):
         # Leave personal room

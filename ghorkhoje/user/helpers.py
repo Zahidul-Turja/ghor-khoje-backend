@@ -184,7 +184,6 @@ def user_registration_service(payload):
     # )
 
     send_otp_email(user.email, otp)
-    print(f"Generated OTP: {otp}")
     return user
 
 
@@ -206,7 +205,6 @@ def resend_otp_service(payload):
     # )
 
     send_otp_email(user.email, otp)
-    print(f"Resent OTP: {otp}")
     return True
 
 
@@ -276,7 +274,6 @@ def resend_otp_service(payload):
     user.save()
 
     send_otp_email(user.email, otp)
-    print(f"Resent OTP: {otp}")
     return True
 
 

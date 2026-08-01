@@ -104,7 +104,6 @@ class ForgetPasswordAPIView(APIView):
 
     def post(self, request):
         try:
-            print("request.data", request.data)
             serializer = ForgetPasswordSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             payload = serializer.validated_data
@@ -217,7 +216,6 @@ class UpdateProfileAPIView(APIView):
 
     def post(self, request):
         try:
-            # print(request.data)
             serializer = UpdataProfileSerializer(
                 request.user, data=request.data, partial=True
             )
@@ -462,7 +460,6 @@ class AboutHostAPIView(APIView):
 #     def post(self, request):
 #         try:
 #             data = request.data.copy()
-#             print(data, "--------------------------------")
 #             data["user"] = request.user.id
 #             serializer = TaskCreationSerializer(data=data)
 #             serializer.is_valid(raise_exception=True)

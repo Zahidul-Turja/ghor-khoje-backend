@@ -347,7 +347,6 @@ class PlaceSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        print("Validated data:", validated_data)
         images_data = validated_data.pop("images", [])
         # facilities_data = validated_data.pop("facilities", [])
         facilities_data = list(validated_data.pop("facilities", []).split(","))

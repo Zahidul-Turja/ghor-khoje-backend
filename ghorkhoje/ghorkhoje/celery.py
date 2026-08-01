@@ -22,7 +22,7 @@ app.autodiscover_tasks()
 
 @app.task(bind=True, ignore_result=True)
 def health_check(self):
-    url = "https://ghor-khoje-backend.onrender.com/health/"
+    url = "https://api-ghorkhojee.zahidulturja.com/health/"
     timestamp = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
 
     print("[{}] Health check task started".format(timestamp))
@@ -32,7 +32,6 @@ def health_check(self):
         response = requests.get(
             url, timeout=30, headers={"User-Agent": "Celery-Health-Check/1.0"}
         )
-        print(response.data)
         print(f"[{timestamp}] Health check task completed")
     except Exception as e:
         print(f"[{timestamp}] Health check task failed: {str(e)}")
