@@ -1,10 +1,10 @@
-# 🏠 Ghor Khojee – Backend
+# Ghor Khojee – Backend API
 
 This is the **backend** service for **Ghor Khojee**, a rental platform tailored for bachelors in Bangladesh. Built with **Django**, **Django REST Framework**, **JWT**, and **WebSockets (Channels)**, this service powers the core API, chat, authentication, booking, analytics, and more.
 
 ---
 
-## 🚀 Features
+## Core Features
 
 - 🔐 JWT-based Authentication
 - 📬 Real-time Chat with WebSockets
@@ -16,21 +16,21 @@ This is the **backend** service for **Ghor Khojee**, a rental platform tailored 
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-| Tech                        | Purpose                               |
-| --------------------------- | ------------------------------------- |
-| Python                      | Programming language                  |
-| Django                      | Web framework                         |
-| Django REST Framework (DRF) | API creation                          |
-| Celery + Redis              | Asynchronous tasks                    |
-| Django Channels             | WebSocket support                     |
-| Docker                      | Containerization                      |
-| PostgreSQL                  | Primary database (assumed via Docker) |
+| Tech                        | Purpose              |
+| --------------------------- | -------------------- |
+| Python                      | Programming language |
+| Django                      | Web framework        |
+| Django REST Framework (DRF) | API creation         |
+| Celery + Redis              | Asynchronous tasks   |
+| Django Channels             | WebSocket support    |
+| Docker                      | Containerization     |
+| PostgreSQL                  | Primary database     |
 
 ---
 
-## 📦 Setup Instructions
+## Setup Instructions
 
 ### 1. Clone the repository
 
@@ -41,50 +41,20 @@ cd ghor-khoje-backend
 
 ### 2. Create environment file
 
-Create a `.env` file (or use `.env.example` if provided) and define required environment variables:
+Create a `.env` file using the following command
 
-```env
-DJANGO_SETTINGS_MODULE=ghorkhoje.settings
-
-SECRET_KEY=your_secret_key__can_leave_like_this_for_testing
-
-# Allowed hosts
-ALLOWED_HOSTS=localhost
-ENVIRONMENT=development
-
-# Database connection (using the external URL hostname)
-HOST_NAME=db
-PORT=5432
-DATABASE=ghor_khojee_db
-DB_USER=ghor_khojee_admin
-PASSWORD=zCQrIjQ8uR2wpB9EJfaecz59vED5hwAA
-DEBUG=True
-
-# Claudinary
-CLOUDINARY_CLOUD_NAME=for_local_its_not_needed__just_the_variable_needs_to_be_present
-CLOUDINARY_API_KEY=for_local_its_not_needed__just_the_variable_needs_to_be_present
-CLOUDINARY_API_SECRET=for_local_its_not_needed__just_the_variable_needs_to_be_present
-
-# Email settings
-EMAIL_HOST_USER=your@email.com
-EMAIL_HOST_PASSWORD=email_app_password
-
-# Neon Tech
-NEON_DB=for_local_its_not_needed__just_the_variable_needs_to_be_present
-NEON_DB_NAME=neondb
-NEON_DB_USER=for_local_its_not_needed__just_the_variable_needs_to_be_present
-NEON_DB_PASSWORD=for_local_its_not_needed__just_the_variable_needs_to_be_present
-NEON_DB_HOST=for_local_its_not_needed__just_the_variable_needs_to_be_present
-NEON_DB_PORT=5432
-
+```bash
+cp .env.example .env
 ```
+
+or manually if you prefer and update the values. You do not need the Cloudinary and Neon DB setup for running locally. The variable just need to be there.
 
 ### 3. Run Docker Compose (recommended)
 
 You need **Docker**, **Docker compose** and if on `Windows` might need **WSL** as well.
 
 ```bash
-sudo docker compose  up --build
+docker compose -f docker-compose.local.yml up --build
 ```
 
 This spins up:
@@ -94,24 +64,24 @@ This spins up:
 - Redis broker
 - Celery worker
 - Celery beat scheduler
-- Adminer
 
 Migrate the Databases using these commands
 
 First check the name of the backend container using this command
+
 ```bash
-sudo docker ps
+docker ps
 ```
+
 Then enter the **bash** with,
 
 ```bash
-sudo docker exec -it <container_name> bash
+docker exec -it ghorkhojee_web bash
 ```
 
-and now migrate as you would on a regular Django app
+and migrate using the existing migration files with the following command
 
 ```bash
-python manage.py makemigrations
 python manage.py migrate
 ```
 
@@ -120,27 +90,6 @@ python manage.py migrate
 ```bash
 python manage.py createsuperuser
 ```
-
-#### Note
-
-If you get any `circular import` error while migrating then delete the migration files then comment out these fields inside user app's model.py first:
-
--
-
-```
-// Line 105
-    bookmarks = models.ManyToManyField(
-        "place.Place", related_name="bookmarks", blank=True
-    )
-
-// Line 347
-    related_property = models.ForeignKey(
-        "place.Place", on_delete=models.CASCADE, null=True, blank=True
-    )
-
-```
-
-Now try to migrate again, start with **User** app followed by **Place** then the rest. After all these migrations please uncomment those fields and migrate the **User** again.
 
 ---
 
