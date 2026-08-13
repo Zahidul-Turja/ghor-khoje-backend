@@ -1,0 +1,25 @@
+.git
+.gitignore
+.dockerignore
+.env
+.env.*
+*.md
+
+# Large local-only asset folders — served/mounted separately, not baked into image
+icons/
+images/
+
+# Python cruft
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+venv/
+.venv/
+
+# Editor/OS noise
+.vscode/
+.idea/
+.DS_Store

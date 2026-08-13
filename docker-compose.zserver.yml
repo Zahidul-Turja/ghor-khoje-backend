@@ -1,0 +1,57 @@
+name: zserver
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: ghorkhojee_redis
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  db:
+    image: postgres:13
+    container_name: ghorkhojee_db
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${DATABASE}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.zserver
+    container_name: ghorkhojee_web
+    restart: unless-stopped
+    ports:
+      - "8765:9876"
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=ghorkhoje.settings.local # confirm this is actually prod-safe
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9876/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  redisdata:
+  postgres_data:
